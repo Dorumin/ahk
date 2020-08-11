@@ -1,4 +1,4 @@
-﻿; These are built-in
+﻿; These are built-in, not touching that shit
 
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 ; #Warn  ; Enable warnings to assist with detecting common errors.
@@ -16,7 +16,6 @@ MIN_MS_BETWEEN_PRESS = 100
 ; We need this because... yeah, holding down keys presses them lots of times. Surprise!
 #MaxHotkeysPerInterval 10000
 
-
 ; Oh man, lookat this beautiful array creation syntax!!
 keys := []
 keys[1] := "w"
@@ -32,14 +31,14 @@ pressedTimes := Object()
 ; Dynamically add the hotkey overrides
 ; The $ is needed to avoid recursively calling oneself
 for _, key in keys {
-	Hotkey, $%key%, HoldSpam
+    Hotkey, $%key%, HoldSpam
     Hotkey, $%key% up, DoNothing
 }
 
 ; Get a relative monotonic counter in ms
 NikeTicks() {
-    Result := A_TickCount
-    return Result
+    result := A_TickCount
+    return result
 }
 
 ; Timeout callback
@@ -51,7 +50,7 @@ LiftKey(key, callTime, pressedTimes) {
     }
 }
 
-; Subroutines, these should probably just be functions... Oh well!!
+; Subroutines, these should probably just be functions... Oh well!
 return
 
 HoldSpam:
@@ -59,7 +58,7 @@ HoldSpam:
     currentTime := NikeTicks()
 
     ; This block of code was the first implementation of the "send every X ms"
-    ; But using the timeout intrinsics turned out better
+    ; But using the timeout built-ins turned out better
     ; Just, shame they don't have a way to clear it with a returned id
     ;
     ; oldTime := pressedTimes[pressed]
