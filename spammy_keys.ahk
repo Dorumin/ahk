@@ -10,8 +10,8 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 ; Probably because they're stupid
 
 ; Another way to phrase it is "emulate long presses from many fast presses"
-; In this case, <100ms between each press will be kept held
-MIN_MS_BETWEEN_PRESS = 100
+; In this case, <200ms between each press will be kept held
+MIN_MS_BETWEEN_PRESS = 200
 
 ; We need this because... yeah, holding down keys presses them lots of times. Surprise!
 #MaxHotkeysPerInterval 10000
@@ -50,11 +50,14 @@ LiftKey(key, callTime, pressedTimes) {
 
     currentLastTime := pressedTimes[key]
 
-    if (isPressedMap[key] != "yes" and currentLastTime == callTime) {
-        Send, {%key% up}
-    } else {
-        callback := Func("LiftKey").bind(key, callTime, pressedTimes)
-        SetTimer, %callback%, -%MIN_MS_BETWEEN_PRESS%
+    if (currentLastTime == callTime) {
+        if (isPressedMap[key] != "yes") {
+            Send, {%key% up}
+        } else {
+            Send, {%key% down}
+            callback := Func("LiftKey").bind(key, callTime, pressedTimes)
+            SetTimer, %callback%, -%MIN_MS_BETWEEN_PRESS%
+        }
     }
 }
 
