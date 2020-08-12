@@ -22,17 +22,20 @@ keys[1] := "w"
 keys[2] := "a"
 keys[3] := "s"
 keys[4] := "d"
+keys[5] := "g"
 
 ; This is what I came up with to replace clearTimeout, you just assign the timestamp for when you called it
 ; and pass it to the callback. Then the callback checks if it and the value in this object are the same,
 ; and if they are, it does stuff!
+; Paired with an "is this pressed" map for the purpose of having multiple keys held down
 pressedTimes := Object()
+isPressedMap := Object()
 
 ; Dynamically add the hotkey overrides
 ; The $ is needed to avoid recursively calling oneself
 for _, key in keys {
     Hotkey, $%key%, HoldSpam
-    Hotkey, $%key% up, DoNothing
+    Hotkey, $%key% up, OnKeyUp
 }
 
 ; Get a relative monotonic counter in ms
@@ -43,10 +46,15 @@ NikeTicks() {
 
 ; Timeout callback
 LiftKey(key, callTime, pressedTimes) {
+    global MIN_MS_BETWEEN_PRESS, isPressedMap
+
     currentLastTime := pressedTimes[key]
 
-    if (currentLastTime == callTime) {
+    if (isPressedMap[key] != "yes" and currentLastTime == callTime) {
         Send, {%key% up}
+    } else {
+        callback := Func("LiftKey").bind(key, callTime, pressedTimes)
+        SetTimer, %callback%, -%MIN_MS_BETWEEN_PRESS%
     }
 }
 
@@ -57,28 +65,17 @@ HoldSpam:
     pressed := StrReplace(A_ThisHotkey, "$", "")
     currentTime := NikeTicks()
 
-    ; This block of code was the first implementation of the "send every X ms"
-    ; But using the timeout built-ins turned out better
-    ; Just, shame they don't have a way to clear it with a returned id
-    ;
-    ; oldTime := pressedTimes[pressed]
-    ; elapsed := 0
-
-    ; if (oldTime != "") {
-    ;     elapsed := currentTime - oldTime
-    ; }
-
-    ; if (elapsed > MIN_MS_BETWEEN_PRESS) {
-    ;     Send, {%pressed% down}
-    ; }
 
     Send, {%pressed% down}
     callback := Func("LiftKey").bind(pressed, currentTime, pressedTimes)
     SetTimer, %callback%, -%MIN_MS_BETWEEN_PRESS%
 
+    isPressedMap[pressed] := "yes"
     pressedTimes[pressed] := currentTime
 return
 
-; Self documenting code lover
-DoNothing:
+OnKeyUp:
+    pressed := Trim(StrReplace(StrReplace(A_ThisHotkey, "$", ""), "up", ""))
+
+    isPressedMap[pressed] := "no"
 return
