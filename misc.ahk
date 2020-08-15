@@ -8,6 +8,9 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #InstallKeybdHook
 SetTitleMatchMode 2
 
+F4::
+return
+
 ^u::
 	Send, i
 return
@@ -65,87 +68,6 @@ return
 return
 
 :?:ti::it
-
-SwitchMode := 0
-FightMode := 0
-CaneSlot := 1
-
-CaneIsNext := 0
-
-SEX := 250
-SEY := 735
-
-; RGB format? Nah, this is BGR format!!!
-CANE_COLOR := "0x25EAF1"
-
-SwapIfSwitched(to) {
-	global SwitchMode, FightMode, CaneSlot, CaneIsNext, SEX, SEY, CANE_COLOR
-
-	PixelGetColor, color, %SEX%, %SEY%
-
-	; MsgBox % color == CANE_COLOR
-
-	if (SwitchMode == 1) {
-		if (FightMode != to) {
-			if (CANE_COLOR == color) and (to == 1) {
-				FightMode := to
-				; MsgBox, prevented
-			} else {
-				FightMode := to
-				Send, 1
-			}
-		}
-	}
-}
-
-SetCaneSlot(to) {
-	if (SwitchMode == 1) {
-		CaneSlot := to
-	}
-}
-
-#IfWinActive Don't Starve Together
-~w::SwapIfSwitched(0)
-#IfWinActive Don't Starve Together
-~a::SwapIfSwitched(0)
-#IfWinActive Don't Starve Together
-~s::SwapIfSwitched(0)
-#IfWinActive Don't Starve Together
-~d::SwapIfSwitched(0)
-#IfWinActive Don't Starve Together
-~f::SwapIfSwitched(1)
-#IfWinActive Don't Starve Together
-~^f::SwapIfSwitched(1)
-
-#IfWinActive Don't Starve Together
-~1::SetCaneSlot(1)
-#IfWinActive Don't Starve Together
-~2::SetCaneSlot(2)
-#IfWinActive Don't Starve Together
-~3::SetCaneSlot(3)
-#IfWinActive Don't Starve Together
-~4::SetCaneSlot(4)
-#IfWinActive Don't Starve Together
-~5::SetCaneSlot(5)
-#IfWinActive Don't Starve Together
-~6::SetCaneSlot(6)
-#IfWinActive Don't Starve Together
-~7::SetCaneSlot(7)
-#IfWinActive Don't Starve Together
-~8::SetCaneSlot(8)
-#IfWinActive Don't Starve Together
-~9::SetCaneSlot(9)
-
-#IfWinActive Don't Starve Together
-~MButton::
-	CaneSlot := 1
-
-	if (SwitchMode == 0) {
-		SwitchMode := 1
-	} else {
-		SwitchMode := 0
-	}
-return
 
 AutoPlaceMouseX := 0
 AutoPlaceMouseY := 0
