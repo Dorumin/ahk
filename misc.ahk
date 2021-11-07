@@ -2,53 +2,129 @@
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Event ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-; 
+
 #EscapeChar \
 #MaxHotkeysPerInterval 10000
 #InstallKeybdHook
+
+; Includes anywhere mode
 SetTitleMatchMode 2
 
-F4::
+; Set coordinates relative to the top left of screen vs window
+CoordMode, Mouse, Screen
+CoordMode, Pixel, Screen
+
+; ctrl+alt+} combinator to immediately send `
+^!}::
+	Send, {Text}`
 return
 
-^u::
-	Send, i
-return
-+^u::
-	Send, I
+; ctrl+alt+{ combinator to immediately send ^
+^!{::
+	Send, {Text}^
 return
 
-^j::
-	Send, k
-return
-+^j::
-	Send, K
-return
-
-^m::
-	Send, {,}
-return
-+^m::
-	Send, {;}
+; Ctrl+Space to set the current window always on top
+; Useful e.g. with VLC to play in a corner while doing something else
+^SPACE::
+	WinSet, AlwaysOnTop, Toggle, A
 return
 
-^7::
-	Send, 8
-return
-+^7::
-	Send, {(}
+; Alt+Space to toggle borderless window fullscreen on any app
+; Use case: Some apps by taking control of the frame buffer don't let you alt+tab if they freeze up
+; By using borderless windowed instead, you can have apps that freeze up but don't stop you from focusing elsewhere
+; #UseHook On
+!SPACE::
+	WinGet, TempWindowID, ID, A
+	
+	if (WindowID != TempWindowID) {
+		WindowID := TempWindowID
+		WindowState := 0
+	}
+	
+	if (WindowState != 1) {
+		WinGetPos, WinPosX, WinPosY, WindowWidth, WindowHeight, ahk_id %WindowID%
+		WinSet, Style, -0xC40000, ahk_id %WindowID%
+		WinMove, ahk_id %WindowID%, , 0, 0, A_ScreenWidth, A_ScreenHeight
+		
+		; Hide Windows Task Bar and Start Button. (Remove the following two lines if you don't want that behaviour)
+		WinHide ahk_class Shell_TrayWnd
+		WinHide Start ahk_class Button
+	} else {
+		WinSet, Style, +0xC40000, ahk_id %WindowID%
+		WinMove, ahk_id %WindowID%, , WinPosX, WinPosY, WindowWidth, WindowHeight
+		
+		; Show the task bar again
+		WinShow ahk_class Shell_TrayWnd
+		WinShow Start ahk_class Button
+	}
+	
+	WindowState := !WindowState
 return
 
-!^j::
-	Send, {Ctrl down}{Shift down}i{Shift up}{Ctrl up}
+; Disable F1 completely (help key, File Explorer, Koikatsu)
+F1::
+	; Do nothing
 return
 
-^´::
-	Send, {+}
+; VLC Screenshot and next frame
+!+e::
+	Send, {Shift down}s{Shift up}
+	Sleep, 150
+	Send, {e}
 return
 
-+^´::
-	Send, ~
++^d::
+	Click, 1105 58
+	Sleep, 100
+	Click, 131 743
+
+	Sleep, 300
+	Send, {Up}{Delete}
+
+	Sleep, 750
+	Click, 131 743
+	Click, 1150 750
+	Click, 1170 620
+
+	Sleep, 1000
+	Click, 1222 332
+	
+	Sleep, 13000
+	Click, 670 440
+	
+	Sleep, 1000
+	Click, 680 370
+	
+	Sleep, 1000
+	Click, 444 210
+	
+	Sleep, 1000
+	Click, 680 360
+	
+	Sleep, 3000
+	Click, 680 360
+	
+	Sleep, 1000
+	Click, 444 210
+	
+	Sleep, 3000
+	Click, 680 360
+return
+
+#IfWinActive DELTARUNE
+a::
+	Send, {z down}
+return
+
+#IfWinActive DELTARUNE
+a UP::
+	Send, {z up}
+return
+
+#IfWinActive DELTARUNE
+s::
+	Send, {Enter down}{Enter up}
 return
 
 ; Discord shittiness
@@ -67,43 +143,8 @@ return
 	; do nothing
 return
 
-:?:ti::it
-
-AutoPlaceMouseX := 0
-AutoPlaceMouseY := 0
-AutoPlace := false
-
-#IfWinActive SPORE
-~^LButton::
-	global AutoPlace, AutoPlaceMouseX, AutoPlaceMouseY
-	AutoPlace := true
-	MouseGetPos, AutoPlaceMouseX, AutoPlaceMouseY
-return
-
-#IfWinActive SPORE
-~^LButton Up::
-	global AutoPlace, AutoPlaceMouseX, AutoPlaceMouseY
-	if (AutoPlace) {
-		SendMode, Event
-		MouseGetPos, AutoPlaceTargetX, AutoPlaceTargetY
-		AutoPlace := false
-
-		Loop, 7 {
-			MouseMove, %AutoPlaceMouseX%, %AutoPlaceMouseY%, 2
-			Sleep, 30
-			Send, {LButton down}
-			Sleep, 30
-			MouseMove, %AutoPlaceTargetX%, %AutoPlaceTargetY%, 2
-			Sleep, 30
-			Send, {LButton up}
-			Sleep, 30
-		}
-	}
-return
-
 BMCClicking := 0
 BMCIncrement := 0
-
 
 #IfWinActive Bloons Monkey City
 z::
@@ -244,39 +285,3 @@ h::
 	MouseGetPos, oldX, oldY
 	MsgBox, Pos(%oldX%, %oldY%)
 return
-
-; VLC Screenshot and next frame
-!+e::
-	Send, {Shift down}s{Shift up}
-	Sleep, 150
-	Send, {e}
-return
-
-; Map page down key to supr
-PgDn::
-	Send, {Delete}
-return
-
-^PgDn::
-	Send, {Ctrl down}{Delete}{Ctrl up}
-return
-
-+PgDn::
-	Send, {Shift down}{Delete}{Shift up}
-return
-
-; ctrl+alt+} combinator to immediately send `
-^!}::
-	Send, {Text}`
-return
-
-; ctrl+alt+{ combinator to immediately send ^
-^!{::
-	Send, {Text}^
-return
-
-; Disable F1 completely (help key, File Explorer, Koikatsu)
-F1::return
-
-; Ctrl+Space to set the current window always on top
-^SPACE::  Winset, Alwaysontop, , A

@@ -41,7 +41,7 @@ SwapIfSwitched(to) {
 		Send, 1
 
 		if (LoopingColor == 0) {
-			LoopigColor := 1
+			LoopingColor := 1
 
 			Loop {
 				PixelGetColor, CurrentColor, %SLOT_1_X%, %SLOT_1_Y%
