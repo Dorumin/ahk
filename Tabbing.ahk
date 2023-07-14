@@ -1,41 +1,39 @@
-global HOLDING_BUTTON := false
 global ALT_TABBING := false
 
-~WheelUp:: {
-    global HOLDING_BUTTON, ALT_TABBING
+OnWheelUp(_) {
+    global ALT_TABBING
 
-    if HOLDING_BUTTON {
-        if not ALT_TABBING {
-            ALT_TABBING := 1
-            Send("{Alt down}")
-        }
-
-        Send("{Shift down}{Tab}{Shift up}")
+    if not ALT_TABBING {
+        ALT_TABBING := true
+        Send("{Alt down}")
     }
+
+    Send("{Shift down}{Tab}{Shift up}")
 }
 
-~WheelDown:: {
-    global HOLDING_BUTTON, ALT_TABBING
+OnWheelDown(_) {
+    global ALT_TABBING
 
-    if HOLDING_BUTTON {
-        if not ALT_TABBING {
-            ALT_TABBING := 1
-            Send("{Alt down}")
-        }
-
-        Send("{Tab}")
+    if not ALT_TABBING {
+        ALT_TABBING := true
+        Send("{Alt down}")
     }
+
+    Send("{Tab}")
 }
 
 F15:: {
-    global
-
-    HOLDING_BUTTON := true
-    ; ALT_TABBING := false ; can't do this sanity assignment due to key spamming
+    HotIf
+    Hotkey("WheelUp", OnWheelUp, "On")
+    Hotkey("WheelDown", OnWheelDown, "On")
 }
 
 F15 up:: {
-    global
+    global ALT_TABBING
+
+    HotIf
+    Hotkey("WheelUp", "Off")
+    Hotkey("WheelDown", "Off")
 
     if ALT_TABBING {
         ; Target window was selected via scroll wheel
@@ -45,6 +43,5 @@ F15 up:: {
         Send("^!{Tab}")
     }
 
-    HOLDING_BUTTON := false
     ALT_TABBING := false
 }
