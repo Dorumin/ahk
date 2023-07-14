@@ -11,19 +11,39 @@ CoordMode("Pixel", "Screen")
 ; Increase hotkey interval (for touchpad scrolling, and other stuff)
 A_MaxHotkeysPerInterval := 300
 
-global LogsEnabled := false
-LogMessage(text) {
-    if not LogsEnabled {
-        return
-    }
-
-    FileAppend(A_now " " text "`n", A_ScriptDir "\log.txt")
-}
+#Include Utils.ahk
+#Include Explorer.ahk
+#Include Tabbing.ahk
+#Include Opera.ahk
+#Include Discord.ahk
+#Include Notepad++.ahk
+#Include PaintNET.ahk
+#Include AgeOfEmpires.ahk
+#Include Illusion.ahk
+#Include DST.ahk
+#Include SV.ahk
 
 ; REFERENCE:
-; Ctrl = ^
-; Shift = +
-; Alt = !
+; ^ = Ctrl
+; + = Shift
+; ! = Alt
+; # = Win
+
+; ^+d:: {
+;     Send("^{End}")
+;     Sleep(100)
+;     Send(", overalls")
+;     Sleep(100)
+;     Send("^s")
+;     Sleep(100)
+;     Send("^w")
+; }
+
+; Disable F1, almost always useless and pressed by accident
+F1::return
+
+; Alt+F5 to reload the script when developing
+!F5::Reload
 
 ; Stupid mind shortcut for Alt+A to middle click
 !a:: {
@@ -42,25 +62,20 @@ LogMessage(text) {
 
 ; Alt+Shift+T to set the current window always on top
 ; Useful e.g. with VLC to play in a corner while doing something else
+F22 & RButton::
 +!T:: {
+    ; Set the active window as Last Window (id unused)
+    ActiveWindowID := WinExist("A")
     ; Get active window title
-    ToppedTitle := WinGetTitle("A")
+    ToppedTitle := WinGetTitle()
     ; -1 to toggle AOT
-    WinSetAlwaysOnTop(-1, "A")
+    WinSetAlwaysOnTop(-1)
     ; Show notif
-	TrayTip("Topped", ToppedTitle)
-}
-
-HideTrayTip() {
-    TrayTip  ; Attempt to hide it the normal way.
-    if SubStr(A_OSVersion, 1, 3) = "10." {
-        A_IconHidden := true
-        Sleep 200  ; It may be necessary to adjust this sleep.
-        A_IconHidden := false
-    }
+	TrayTipTimeout(1000, "Topped", ToppedTitle)
 }
 
 ; Alt+Space to toggle windowed fullscreen mode
+F22 & LButton::
 !Space:: {
     static WinState := 0
     static LastWinID := 0
@@ -103,8 +118,7 @@ HideTrayTip() {
         Minimize()
 		WinHide("ahk_class Shell_TrayWnd")
 
-        TrayTip("Hiding taskbar")
-        SetTimer(HideTrayTip, -1500)
+        TrayTipTimeout(1000, "Hiding taskbar")
 
         WinState := 3
     } else if WinState == 3 {
@@ -112,337 +126,5 @@ HideTrayTip() {
 		WinShow("ahk_class Shell_TrayWnd")
 
         WinState := 0
-    }
-}
-
-; Alt+Shift+E for screenshot, next frame in VLC
-#HotIf WinActive("ahk_exe vlc.exe")
-!+e:: {
-	Send("{Shift down}s{Shift up}")
-	Sleep(150)
-	Send("e")
-}
-#HotIf
-
-; Disable Ctrl+R in Discord (refresh)
-#HotIf WinActive("ahk_exe Discord.exe")
-^r:: {
-	; do nothing
-}
-
-; Disable Ctrl+P in Discord (open pins)
-^p:: {
-    ; do nothing
-}
-
-; Disable Ctrl+Shift+A in Discord (collapse all categories)
-^+a:: {
-	; do nothing
-}
-
-XButton1 & WheelUp:: {
-    Send("{Ctrl down}{Alt down}{Up}{Alt up}{Ctrl up}")
-}
-
-XButton1 & WheelDown:: {
-    Send("{Ctrl down}{Alt down}{Down}{Alt up}{Ctrl up}")
-}
-
-; XButton2 & WheelUp:: {
-;     Send("{Alt down}{Up}{Alt up}")
-; }
-
-; XButton2 & WheelDown:: {
-;     Send("{Alt down}{Down}{Alt up}")
-; }
-#HotIf
-
-; Function for dropping a list of file paths into application matched by WindowTitle
-DropFiles(window, files) {
-    memRequired := 0
-
-    for k, v in files {
-        memRequired += StrLen(v) + 1
-    }
-
-    hGlobal := DllCall("GlobalAlloc", "uint", 0x42, "ptr", memRequired + 21)
-    dropfiles := DllCall("GlobalLock", "ptr", hGlobal)
-
-    offset := 20
-    NumPut("uint", 20, dropfiles, 0)
-
-    for k, v in files {
-        StrPut(v, dropfiles + offset, StrLen(v), "utf-8")
-        offset += StrLen(v) + 1
-    }
-
-    DllCall("GlobalUnlock", "ptr", hGlobal)
-
-    PostMessage(0x233, hGlobal, 0,, window)
-    DllCall("GlobalFree", "ptr", hGlobal)
-}
-
-GetSelectedKKManager() {
-    WinX := 0
-    WinY := 0
-    WinW := 0
-    WinH := 0
-    OldMouseX := 0
-    OldMouseY := 0
-    ManagerWindowID := 0
-
-    MouseGetPos(&OldMouseX, &OldMouseY, &ManagerWindowID)
-	WinGetPos(&WinX, &WinY, &WinW, &WinH, "ahk_id " ManagerWindowID)
-	WinTitle := WinGetTitle("ahk_id " ManagerWindowID)
-
-	WhereImageX := WinX + WinW - 60
-	WhereImageY := WinY + WinH - 200
-
-	MouseMove(WhereImageX, WhereImageY, 0)
-	Click(WhereImageX, WhereImageY)
-	MouseMove(OldMouseX, OldMouseY, 0)
-
-	; Set tab focus on a text field
-	Send("{Tab}{Enter}{Tab}{Enter}{Tab}{Enter}")
-	; Set tab focus on topmost text field
-	; Send("{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}{Up}")
-	Send("{Home}")
-
-    ; Set tab focus on 2nd text field on KKS, 3rd on HS2
-	if InStr(WinTitle, "[KoikatsuSunshine]") {
-		Send("{Down}")
-    } else {
-		Send("{Down}{Down}")
-    }
-
-    ; Empty clipboard, set tab focus on text field content, copy
-    A_Clipboard := ""
-	Send("{Tab}")
-	Send("{Ctrl down}C{Ctrl up}")
-    ClipWait(2)
-
-	if InStr(WinTitle, "[KoikatsuSunshine]") {
-		return ("C:\Users\Doru\Downloads\Pirated\ISL\KKS\UserData\chara\reflection\" A_Clipboard)
-    } else {
-		return ("C:\Users\Doru\Downloads\Pirated\ISL\HS2\UserData\chara\reflection\" A_Clipboard)
-    }
-}
-
-DropSelectedKKManager() {
-	FileList := [ GetSelectedKKManager() ]
-
-    GameExists := WinExist("ahk_class UnityWndClass")
-
-    if not GameExists {
-        return
-    }
-
-	DropFiles("ahk_class UnityWndClass", FileList)
-    ; Activate after drop, due to lag
-    ; (prefer looking at KKM for a few seconds over unresponsive unity)
-    WinActivate("ahk_class UnityWndClass")
-
-    ; Redraw game window a few times to wait for responsiveness,
-    ; then send ctrl+u to toggle clothing state, sleep, and send to toggle it back
-    if true {
-        return
-    }
-    WinRedraw("ahk_class UnityWndClass")
-    WinRedraw("ahk_class UnityWndClass")
-    Send("{Ctrl down}u{Ctrl up}")
-    WinRedraw("ahk_class UnityWndClass")
-    Sleep(150)
-    WinRedraw("ahk_class UnityWndClass")
-    Send("{Ctrl down}u{Ctrl up}")
-}
-
-MouseIsOver(WinTitle) {
-    MouseGetPos(,, &WindowID)
-
-    return WinExist(WinTitle " ahk_id " WindowID)
-}
-
-#HotIf WinActive("ahk_exe KKManager.exe")
-Space:: {
-    DropSelectedKKManager()
-}
-
-#HotIf WinActive("ahk_exe KKManager.exe") or MouseIsOver("ahk_exe KKManager.exe")
-XButton1 & LButton:: {
-    Click()
-    DropSelectedKKManager()
-}
-
-XButton1 & RButton:: {
-    Click()
-    filepath := GetSelectedKKManager()
-
-    attrs := FileGetAttrib(filepath)
-
-    truepath := ExecPS("Get-Item -Path '" filepath "' | Select-Object -ExpandProperty Target")
-    truefilename := ""
-    truedir := ""
-
-    ; Run(A_ComSpec " /c `"explorer.exe /select,\`"" StrReplace(truepath, "\", "\\") "\`"`"", , "Hide")
-
-    SplitPath(truepath, &truefilename, &truedir)
-    Run(Format("{} /c explorer.exe `"{}`"", A_ComSpec, truedir), , "Hide")
-
-    WinWaitActive("ahk_exe explorer.exe")
-    Send(truefilename)
-}
-#HotIf
-
-ExecPS(command) {
-    shell := ComObject("WScript.Shell")
-    ; exec := shell.Exec("powershell -Command `"" command "`"")
-    ; return exec.StdOut.ReadAll()
-    exec := shell.Run("powershell -Command `"" command "`" | clip", 0, True)
-
-    return Trim(A_Clipboard, ' `t`n`r')
-}
-
-#HotIf WinActive("ahk_exe KoikatsuSunshine.exe")
-XButton1 & LButton:: {
-    ; Toggle pov
-    Send("{Backspace}")
-}
-#HotIf
-
-#HotIf WinActive("ahk_exe StudioNEOV2.exe") or WinActive("ahk_exe HoneySelect2.exe")
-XButton1 & LButton:: {
-    ; Toggle pov
-    Send(",")
-}
-
-XButton1 & MButton:: {
-    ; Reset field of view
-    Send("´")
-}
-
-global DownCount := 0
-global UpCount := 0
-
-XButton1 & WheelDown:: {
-    global
-    DownCount := DownCount + 1
-    LogMessage("DownCount++ " DownCount)
-
-    Send("{¿ down}")
-    Sleep(50)
-
-    DownCount := DownCount - 1
-    LogMessage("DownCount-- " DownCount)
-
-    if DownCount == 0 {
-        Send("{¿ up}")
-    }
-}
-
-XButton1 & WheelUp:: {
-    global
-    UpCount := UpCount + 1
-    LogMessage("UpCount++ " UpCount)
-
-    Send("{+ down}")
-    Sleep(50)
-
-    UpCount := UpCount - 1
-    LogMessage("UpCount-- " UpCount)
-
-    if UpCount == 0 {
-        Send("{+ up}")
-    }
-}
-#HotIf
-
-#HotIf WinActive("ahk_exe explorer.exe")
-~LButton:: {
-    x := 0
-    y := 0
-	MouseGetPos(&x, &y)
-
-	if (y < 4) {
-		MouseMove(x, 4, 0)
-		Click(x, 4)
-	}
-}
-#HotIf
-
-global HOLDING_TOGGLE := false
-global WHEEL_TABULATING := false
-
-TurnWheelTabbingOn() {
-    global
-
-    HOLDING_TOGGLE := true
-}
-
-TurnWheelTabbingOff() {
-    global
-
-    HOLDING_TOGGLE := false
-
-    if WHEEL_TABULATING {
-        WHEEL_TABULATING := false
-        Send("{Alt up}")
-    }
-}
-
-; Remap some alt/ctrl + arrow key shortcuts to tab rotating
-#HotIf WinActive("ahk_exe opera.exe")
-XButton1::
-!Right:: {
-	Send("{Ctrl down}{Tab}{Ctrl up}")
-}
-
-!Left:: {
-	Send("{Ctrl down}{Shift down}{Tab}{Shift up}{Ctrl up}")
-}
-
-XButton2:: {
-    TurnWheelTabbingOn()
-}
-
-XButton2 up:: {
-    if not WHEEL_TABULATING {
-        Send("{Ctrl down}{Shift down}{Tab}{Shift up}{Ctrl up}")
-    }
-
-    TurnWheelTabbingOff()
-}
-
-^+Up:: {
-	Send("{Ctrl down}{Tab}{Ctrl up}")
-}
-
-^+Down:: {
-	Send("{Ctrl down}{Shift down}{Tab}{Shift up}{Ctrl up}")
-}
-#HotIf
-
-~XButton2:: {
-    TurnWheelTabbingOn()
-}
-
-~XButton2 up:: {
-    TurnWheelTabbingOff()
-}
-
-~WheelDown:: {
-    global
-
-    if HOLDING_TOGGLE {
-        WHEEL_TABULATING := true
-        Send("{Alt down}{Tab}")
-    }
-}
-
-~WheelUp:: {
-    global
-
-    if HOLDING_TOGGLE {
-        WHEEL_TABULATING := true
-        Send("{Alt down}{Shift down}{Tab}{Shift up}")
     }
 }
