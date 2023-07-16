@@ -1,4 +1,5 @@
 global ALT_TABBING := false
+global CONSECUTIVE_F15S := 0
 
 OnWheelUp(_) {
     global ALT_TABBING
@@ -23,13 +24,21 @@ OnWheelDown(_) {
 }
 
 F15:: {
+    global CONSECUTIVE_F15S
+
+    if A_PriorKey != "F15" {
+        CONSECUTIVE_F15S := 1
+    } else {
+        CONSECUTIVE_F15S := CONSECUTIVE_F15S + 1
+    }
+
     HotIf
     Hotkey("WheelUp", OnWheelUp, "On")
     Hotkey("WheelDown", OnWheelDown, "On")
 }
 
 F15 up:: {
-    global ALT_TABBING
+    global ALT_TABBING, CONSECUTIVE_F15S
 
     HotIf
     Hotkey("WheelUp", "Off")
@@ -39,8 +48,13 @@ F15 up:: {
         ; Target window was selected via scroll wheel
         Send("{Alt up}")
     } else {
-        ; Ctrl+Alt+Tab toggles the alt+tab menu for clicking
-        Send("^!{Tab}")
+        if Mod(CONSECUTIVE_F15S, 2) == 0 {
+            ; Submit when pressing F15 twice in a row
+            Send("{Enter}")
+        } else {
+            ; Ctrl+Alt+Tab toggles the alt+tab menu for clicking
+            Send("^!{Tab}")
+        }
     }
 
     ALT_TABBING := false
