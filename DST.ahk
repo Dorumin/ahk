@@ -80,4 +80,25 @@ F21:: {
         HadCaneEquipped := false
     }
 }
+
+F17::RestoreMousePosition(true, () => (
+    Click()
+    Sleep(100)
+
+    MouseMove(1180, 985, 0)
+    Sleep(100)
+    Click(1180, 985)
+    Sleep(100)
+
+    MouseMove(960, 820, 0)
+    Sleep(100)
+    Click(960, 820)
+    Sleep(100)
+
+    MouseMove(790, 615, 2)
+    Sleep(100)
+    Click(790, 615)
+    Sleep(100)
+))
+
 #HotIf

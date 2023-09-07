@@ -5,4 +5,8 @@
 	Sleep(150)
 	Send("e")
 }
+
+F13:: {
+    Send("^h+!T")
+}
 #HotIf

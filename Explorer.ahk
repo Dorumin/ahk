@@ -10,9 +10,9 @@
     if WinExist("ahk_exe explorer.exe ahk_class CabinetWClass") {
         WinActivate
         Send("{Tab}^t")
-        RestoreMousePosition(() => MouseMove(0, 0, 0))
+        RestoreMousePosition(true, () => MouseMove(0, 0, 0))
         Sleep(150)
-        RestoreMousePosition(() => MouseMove(0, 0, 0))
+        RestoreMousePosition(true, () => MouseMove(0, 0, 0))
     } else {
         Run("C:\Windows\System32\explorer.exe", , "Hide")
         WinWait("ahk_exe explorer.exe ahk_class CabinetWClass")
@@ -31,7 +31,7 @@
     ; exists := WinWait("ahk_class Windows.UI.Core.CoreWindow", , 2)
 
     ; Fuck it, hardcode coords
-    RestoreMousePosition(() => (
+    RestoreMousePosition(true, () => (
         Click(1650, 565)
         Click(1710, 565)
     ))
@@ -43,7 +43,7 @@
 ; Ctrl+Alt+Delete still works to change user (win+L) or log out
 #l::return
 
-#HotIf WinActive("ahk_exe explorer.exe")
+#HotIf WinActive("ahk_exe explorer.exe ahk_class CabinetWClass")
 
 ; I really don't use the search bar that much
 F3::return
@@ -59,11 +59,13 @@ $^l:: {
 }
 
 ; Tab switching with side buttons
-Home & WheelDown:: {
+F14::
+ScrollLock & WheelDown:: {
     Send("^{Tab}")
 }
 
-Home & WheelUp:: {
+F13::
+ScrollLock & WheelUp:: {
     Send("^+{Tab}")
 }
 
@@ -74,9 +76,9 @@ Home & WheelUp:: {
     y := 0
 	MouseGetPos(&x, &y)
 
-	if (y < 4) {
-		MouseMove(x, 4, 0)
-		Click(x, 4)
+	if (y < 7) {
+		MouseMove(x, 7, 0)
+		Click(x, 7)
 		MouseMove(x, y, 0)
 
         ; Experiment with reloads on tab switch
@@ -101,8 +103,12 @@ Home & WheelUp:: {
 }
 
 ; Quick setup for folder viewing (autodetect doesn't work well; sort reverse name & big preview)
-XButton1 & LButton:: {
+F21 & LButton:: {
     Send("{AppsKey}{Down}{Enter}{Enter}{AppsKey}{Down}{Down}{Right}{Enter}")
+}
+
+F21 & RButton:: {
+    Send("{AppsKey}{Down}{Enter}{Enter}")
 }
 #HotIf
 

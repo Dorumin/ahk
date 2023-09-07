@@ -51,7 +51,7 @@ global lastClickedGuildHeight := -1
             color := PixelGetColor(0, y, "RGB")
 
             if color == SELECTED_COLOR {
-                RestoreMousePosition(() => Click(GUILD_CLICK_X, y))
+                RestoreMousePosition(true, () => Click(GUILD_CLICK_X, y))
                 lastClickedGuildHeight := y
                 found := true
                 break
@@ -61,18 +61,18 @@ global lastClickedGuildHeight := -1
         }
 
         if not found and lastClickedGuildHeight != -1 {
-            RestoreMousePosition(() => Click(GUILD_CLICK_X, lastClickedGuildHeight))
+            RestoreMousePosition(true, () => Click(GUILD_CLICK_X, lastClickedGuildHeight))
         }
 
         ; MsgBox("Took " (A_TickCount - start_time) "ms to find white dollop")
     } else {
-        RestoreMousePosition(() => Click(GUILD_CLICK_X, DM_CLICK_Y))
+        RestoreMousePosition(true, () => Click(GUILD_CLICK_X, DM_CLICK_Y))
     }
 }
 
 ; Iterate over chanels/guilds with the mouse wheel
 XButton2::
-Home & WheelUp:: {
+ScrollLock & WheelUp:: {
     if GetKeyState("F21") {
         Send("^!{Up}")
     } else {
@@ -81,7 +81,7 @@ Home & WheelUp:: {
 }
 
 XButton1::
-Home & WheelDown:: {
+ScrollLock & WheelDown:: {
     if GetKeyState("F21") {
         Send("^!{Down}")
     } else {
@@ -92,6 +92,6 @@ Home & WheelDown:: {
 ; Iterate over guilds with side buttons
 F13::Send("^!{Up}")
 F14::Send("^!{Down}")
-Home & F13::Send("!{Up}")
-Home & F14::Send("!{Down}")
+ScrollLock & F13::Send("!{Up}")
+ScrollLock & F14::Send("!{Down}")
 #HotIf

@@ -18,9 +18,11 @@ A_MaxHotkeysPerInterval := 300
 #Include Discord.ahk
 #Include Notepad++.ahk
 #Include PaintNET.ahk
+#Include VLC.ahk
 #Include AgeOfEmpires.ahk
 #Include Illusion.ahk
 #Include DST.ahk
+#Include BG3.ahk
 #Include SV.ahk
 
 ; REFERENCE:
@@ -44,6 +46,13 @@ F1::return
 
 ; Alt+F5 to reload the script when developing
 !F5::Reload
+
+; F23::WheelUp
+; F24::WheelDown
+F23::Send('{WheelUp down}')
+F23 up::Send('{WheelUp up}')
+F24::Send('{WheelDown down}')
+F24 up::Send('{WheelDown up}')
 
 ; Stupid mind shortcut for Alt+A to middle click
 !a:: {
