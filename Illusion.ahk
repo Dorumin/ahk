@@ -118,14 +118,14 @@ DropSelectedKKManager() {
 
 ; KK Manager
 #HotIf WinActive("ahk_exe KKManager.exe") or MouseIsOver("ahk_exe KKManager.exe")
-XButton1::
-F14::
+Media_Prev::
+F24::
 MButton:: {
     Click()
     DropSelectedKKManager()
 }
 
-XButton2::
+Media_Next::
 ScrollLock & MButton:: {
     Click()
     filepath := GetSelectedKKManager()
@@ -150,8 +150,8 @@ ScrollLock & MButton:: {
 #HotIf WinActive("ahk_exe KoikatsuSunshine.exe") or WinActive("ahk_exe CharaStudio.exe")
 $F1::Send("{F1}")
 
-XButton1::
-F14:: {
+Media_Prev::
+F24:: {
     try {
         WinActivate('ahk_exe KKManager.exe')
         RestoreMousePosition(true, () => Click(50, 10))
@@ -159,16 +159,16 @@ F14:: {
     }
 }
 
-F13::BackSpace
-F18::Space
+F21::BackSpace
+F23::Space
 #HotIf
 
 ; HS2
 #HotIf WinActive("ahk_exe StudioNEOV2.exe") or WinActive("ahk_exe HoneySelect2.exe")
 
-F13::Send(",")
+F21::Send(",")
 
-F18::Space
+F23::Space
 #HotIf
 
 ; All games, all studios
@@ -182,7 +182,7 @@ ScrollLock & RButton:: {
 }
 
 ; Scene effects
-F16:: {
+F19:: {
     color := PixelGetColor(20, 222, "RGB")
 
     ; Inactive color
@@ -218,7 +218,7 @@ F16:: {
 }
 
 ; Open browser
-F17:: {
+F22:: {
     color := PixelGetColor(20, 222, "RGB")
 
     ; Inactive color
@@ -304,7 +304,7 @@ WheelRight:: {
 
 LastCycle := 0
 CurrentCam := 0
-F19:: {
+F18:: {
     global CurrentCam, LastCycle
 
     if LastCycle < 10000 {
@@ -319,7 +319,7 @@ F19:: {
 
     Send(Format("{}", CurrentCam))
 }
-F20:: {
+F16:: {
     global CurrentCam, LastCycle
 
     if LastCycle < 10000 {

@@ -6,7 +6,7 @@
 	Send("e")
 }
 
-F13:: {
+F21:: {
     Send("^h+!T")
 }
 #HotIf

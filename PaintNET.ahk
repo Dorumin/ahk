@@ -12,11 +12,11 @@
 }
 
 ; Tab switching with side buttons
-XButton1:: {
+Media_Next:: {
     Send("^{Tab}")
 }
 
-XButton2:: {
+Media_Prev:: {
     Send("^+{Tab}")
 }
 

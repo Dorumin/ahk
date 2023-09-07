@@ -47,13 +47,6 @@ F1::return
 ; Alt+F5 to reload the script when developing
 !F5::Reload
 
-; F23::WheelUp
-; F24::WheelDown
-F23::Send('{WheelUp down}')
-F23 up::Send('{WheelUp up}')
-F24::Send('{WheelDown down}')
-F24 up::Send('{WheelDown up}')
-
 ; Stupid mind shortcut for Alt+A to middle click
 !a:: {
     Send("{MButton}")
@@ -71,7 +64,7 @@ F24 up::Send('{WheelDown up}')
 
 ; Alt+Shift+T to set the current window always on top
 ; Useful e.g. with VLC to play in a corner while doing something else
-F22 & RButton::
+F15 & RButton::
 +!T:: {
     ; Set the active window as Last Window (id unused)
     ActiveWindowID := WinExist("A")
@@ -84,7 +77,7 @@ F22 & RButton::
 }
 
 ; Alt+Space to toggle windowed fullscreen mode
-F22 & LButton::
+F15 & LButton::
 !Space:: {
     static WinState := 0
     static LastWinID := 0

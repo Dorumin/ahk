@@ -22,7 +22,7 @@ global UNEQUIPPEDS := [
 
 #HotIf WinActive("ahk_exe dontstarve_steam_x64.exe")
 ; Alt+Shift+F toggle autocaner
-F21:: {
+F14:: {
     global
 
     SoundBeep()
@@ -81,7 +81,7 @@ F21:: {
     }
 }
 
-F17::RestoreMousePosition(true, () => (
+F22::RestoreMousePosition(true, () => (
     Click()
     Sleep(100)
 

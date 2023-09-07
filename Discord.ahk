@@ -11,20 +11,11 @@ global lastClickedGuildHeight := -1
 
 #HotIf WinActive("ahk_exe Discord.exe")
 ; Disable Ctrl+R in Discord (refresh) (why)
-^r:: {
-	; do nothing
-}
-
+^r::
 ; Disable Ctrl+P in Discord (open pins)
-^p:: {
-    ; do nothing
-}
-
+^p::
 ; Disable Ctrl+U in Discord (toggle members list)
-^u:: {
-    ; do nothing
-}
-
+^u::
 ; Disable Ctrl+Shift+A in Discord (collapse all categories)
 ^+a:: {
 	; do nothing
@@ -70,28 +61,21 @@ global lastClickedGuildHeight := -1
     }
 }
 
-; Iterate over chanels/guilds with the mouse wheel
-XButton2::
+; Iterate over channels with the mouse wheel
+Media_Prev::
 ScrollLock & WheelUp:: {
-    if GetKeyState("F21") {
-        Send("^!{Up}")
-    } else {
-        Send("!{Up}")
-    }
+    Send("!{Up}")
 }
 
-XButton1::
+Media_Next::
 ScrollLock & WheelDown:: {
-    if GetKeyState("F21") {
-        Send("^!{Down}")
-    } else {
-        Send("!{Down}")
-    }
+    Send("!{Down}")
 }
 
 ; Iterate over guilds with side buttons
-F13::Send("^!{Up}")
-F14::Send("^!{Down}")
-ScrollLock & F13::Send("!{Up}")
-ScrollLock & F14::Send("!{Down}")
+F21::Send("^!{Up}")
+F24::Send("^!{Down}")
+
+ScrollLock & F21::Send("!{Up}")
+ScrollLock & F24::Send("!{Down}")
 #HotIf

@@ -59,12 +59,12 @@ $^l:: {
 }
 
 ; Tab switching with side buttons
-F14::
+F24::
 ScrollLock & WheelDown:: {
     Send("^{Tab}")
 }
 
-F13::
+F21::
 ScrollLock & WheelUp:: {
     Send("^+{Tab}")
 }
@@ -103,11 +103,11 @@ ScrollLock & WheelUp:: {
 }
 
 ; Quick setup for folder viewing (autodetect doesn't work well; sort reverse name & big preview)
-F21 & LButton:: {
+F14 & LButton:: {
     Send("{AppsKey}{Down}{Enter}{Enter}{AppsKey}{Down}{Down}{Right}{Enter}")
 }
 
-F21 & RButton:: {
+F14 & RButton:: {
     Send("{AppsKey}{Down}{Enter}{Enter}")
 }
 #HotIf
