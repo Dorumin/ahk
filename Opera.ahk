@@ -1,6 +1,7 @@
 #HotIf WinActive("ahk_exe opera.exe")
 
 ; Remap some alt/ctrl + arrow key shortcuts to tab rotating
+F17::
 F24::
 ScrollLock & WheelDown::
 ^+Up::
@@ -8,6 +9,7 @@ ScrollLock & WheelDown::
 	Send("^{Tab}")
 }
 
+F16::
 F21::
 ScrollLock & WheelUp::
 ^+Down::
@@ -18,4 +20,5 @@ ScrollLock & WheelUp::
 ; Remap buttons below the scroll wheel to zoom
 Media_Prev::Send("^{+}")
 Media_Next::Send("^-")
+
 #HotIf

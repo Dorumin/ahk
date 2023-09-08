@@ -6,9 +6,7 @@ Y_COORD_TIER_3 := 915
 
 F1::Send('{F1}')
 
-F21::Send('{Space}')
-
-F24::Send('{Home}')
+F16::Send('{Home}')
 
 SelectOption(key, y_coord, x_index) {
     x_start := 0

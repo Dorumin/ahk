@@ -17,9 +17,7 @@ global lastClickedGuildHeight := -1
 ; Disable Ctrl+U in Discord (toggle members list)
 ^u::
 ; Disable Ctrl+Shift+A in Discord (collapse all categories)
-^+a:: {
-	; do nothing
-}
+^+a::return
 
 ; Fix Ctrl+Alt+Right (but it's kinda laggy)
 ^!Right:: {
@@ -73,9 +71,9 @@ ScrollLock & WheelDown:: {
 }
 
 ; Iterate over guilds with side buttons
-F21::Send("^!{Up}")
-F24::Send("^!{Down}")
+F16::Send("^!{Down}")
+F17::Send("^!{Up}")
 
-ScrollLock & F21::Send("!{Up}")
-ScrollLock & F24::Send("!{Down}")
+ScrollLock & F16::Send("!{Down}")
+ScrollLock & F17::Send("!{Up}")
 #HotIf

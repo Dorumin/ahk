@@ -158,7 +158,7 @@ TrayTipTimeout(ms, message, title := "") {
     SetTimer(HideTrayTip, -ms)
 }
 
-; Function for dropping a list of file paths into application matched by WindowTitle
+; Function for dropping a list of file paths into application matched by a WindowTitle
 DropFiles(window, files) {
     memRequired := 0
 

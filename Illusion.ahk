@@ -118,8 +118,7 @@ DropSelectedKKManager() {
 
 ; KK Manager
 #HotIf WinActive("ahk_exe KKManager.exe") or MouseIsOver("ahk_exe KKManager.exe")
-Media_Prev::
-F24::
+F16::
 MButton:: {
     Click()
     DropSelectedKKManager()
@@ -150,8 +149,7 @@ ScrollLock & MButton:: {
 #HotIf WinActive("ahk_exe KoikatsuSunshine.exe") or WinActive("ahk_exe CharaStudio.exe")
 $F1::Send("{F1}")
 
-Media_Prev::
-F24:: {
+F16:: {
     try {
         WinActivate('ahk_exe KKManager.exe')
         RestoreMousePosition(true, () => Click(50, 10))
@@ -159,16 +157,19 @@ F24:: {
     }
 }
 
-F21::BackSpace
-F23::Space
+F17::BackSpace
+F18::Space
+
+Media_Next::LongPress('XButton2', 50)
+Media_Prev::LongPress('XButton2', 500)
 #HotIf
 
 ; HS2
 #HotIf WinActive("ahk_exe StudioNEOV2.exe") or WinActive("ahk_exe HoneySelect2.exe")
 
-F21::Send(",")
+F17::Send(",")
 
-F23::Space
+F18::Space
 #HotIf
 
 ; All games, all studios
@@ -182,43 +183,93 @@ ScrollLock & RButton:: {
 }
 
 ; Scene effects
-F19:: {
-    color := PixelGetColor(20, 222, "RGB")
+F20:: {
+    RestoreMousePosition(true, SetSceneEffects)
+    SetSceneEffects() {
+        color := PixelGetColor(20, 222, "RGB")
 
-    ; Inactive color
-    if color == "0x464646" {
+        ; Inactive color
+        if color == "0x464646" {
+            MouseMove(20, 222)
+            LongPress("LButton", 50, 150)
+        }
+
+        scene_effects_color := PixelGetColor(120, 132, "RGB")
+
+        if scene_effects_color != "0x006300" {
+            MouseMove(120, 132)
+            LongPress("LButton", 75, 75)
+        }
+
+        MouseMove(595, 35)
+        LongPress("LButton", 50, 50)
+
+        dof_color := PixelGetColor(380, 259, 'RGB')
+
+        if dof_color == "0x22FF94" {
+            MouseMove(380, 259)
+            LongPress("LButton", 100, 100)
+        }
+
+        MouseMove(595, 618)
+        LongPress("LButton", 50, 50)
+
+        MouseMove(525, 560)
+        LongPress("LButton", 75, 75)
+        Send('0')
+        Send('{Enter}')
+
+        ; Close system menu
         MouseMove(20, 222)
-        LongPress("LButton", 50, 50)
+        LongPress("LButton", 50, 150)
     }
-
-    scene_effects_color := PixelGetColor(120, 132, "RGB")
-
-    if scene_effects_color != "0x006300" {
-        MouseMove(120, 132)
-        LongPress("LButton", 50, 50)
-    }
-
-    MouseMove(595, 35)
-    LongPress("LButton", 50, 50)
-
-    dof_color := PixelGetColor(380, 259, 'RGB')
-
-    if dof_color == "0x22FF94" {
-        MouseMove(380, 259)
-        LongPress("LButton", 50, 50)
-    }
-
-    MouseMove(595, 618)
-    LongPress("LButton", 50, 50)
-
-    MouseMove(525, 560)
-    LongPress("LButton", 50, 50)
-    Send('0')
-    Send('{Enter}')
 }
 
-; Open browser
-F22:: {
+IsSceneBrowserOpen() {
+    return (
+        PixelGetColor(1725, 250, 'RGB') == '0x000000' ; Inner close button
+        && PixelGetColor(1725, 242, 'RGB') == '0xFFFFFF' ; Outer close button
+        && PixelGetColor(800, 90, 'RGB') == '0x424242' ; Folder browser; modded
+        ; && ArrayIncludes(['0x696868', '0x6A6967', '0x6C6C6A', '0x696866'], PixelGetColor(190, 250, 'RGB')) ; Translucent; useless
+        ; && PixelGetColor(1650, 285, 'RGB') == '0xD9D9D9' ; Suspicious; uses buttons on the right. Might have shifted
+    )
+}
+
+SCENE_SCROLLBAR_COLOR := "0xC4C4C3"
+SCENE_SCROLLBAR_X := 1723
+SCENE_SCROLLBAR_START_Y := 271
+SCENE_SCROLLBAR_END_Y := 900
+SCENE_SCROLLBAR_STEP := 3
+
+last_scrollbar_y := -1
+
+SceneBrowserWorker() {
+    global last_scrollbar_y
+
+    if not IsSceneBrowserOpen() {
+        return
+    }
+
+    ; Clear self from timer list
+    SetTimer(SceneBrowserWorker, 0)
+
+    ; TrayTipTimeout(1000, Format("cleared worker; current y at {}", last_scrollbar_y))
+
+    if last_scrollbar_y == -1 {
+        return
+    }
+
+    RestoreMousePosition(true, () => (
+        MouseMove(SCENE_SCROLLBAR_X, SCENE_SCROLLBAR_START_Y + 1)
+        Send('{LButton down}')
+        Sleep(150)
+        MouseMove(SCENE_SCROLLBAR_X, last_scrollbar_y)
+        Sleep(150)
+        Send('{LButton up}')
+    ))
+}
+
+OpenSceneBrowser() {
     color := PixelGetColor(20, 222, "RGB")
 
     ; Inactive color
@@ -227,7 +278,48 @@ F22:: {
         LongPress("LButton", 50, 50)
     }
 
-    Click(150, 185)
+    MouseMove(150, 185)
+    LongPress("LButton", 50, 50)
+
+    SetTimer(SceneBrowserWorker, 250)
+}
+
+SelectSceneInBrowser() {
+    global last_scrollbar_y
+
+    LongPress('LButton', 50, 50)
+    MouseMove(800, 670)
+    LongPress('LButton', 50, 50)
+
+    current_scrollbar_y := SCENE_SCROLLBAR_START_Y
+
+    loop {
+        color := PixelGetColor(SCENE_SCROLLBAR_X, current_scrollbar_y, 'RGB')
+
+        LogMessage(color)
+
+        if color == SCENE_SCROLLBAR_COLOR {
+            last_scrollbar_y := current_scrollbar_y
+            break
+        }
+
+        current_scrollbar_y += SCENE_SCROLLBAR_STEP
+
+        if current_scrollbar_y > SCENE_SCROLLBAR_END_Y {
+            break
+        }
+    }
+
+    ; TrayTipTimeout(1000, Format("finished scan; current y at {}", current_scrollbar_y))
+}
+
+; Open browser
+F19:: {
+    if IsSceneBrowserOpen() {
+        RestoreMousePosition(true, SelectSceneInBrowser)
+    } else {
+        RestoreMousePosition(true, OpenSceneBrowser)
+    }
 }
 
 ; Stuff for adjusting zoom and roll
@@ -304,7 +396,7 @@ WheelRight:: {
 
 LastCycle := 0
 CurrentCam := 0
-F18:: {
+ScrollLock & Media_Next:: {
     global CurrentCam, LastCycle
 
     if LastCycle < 10000 {
@@ -317,9 +409,9 @@ F18:: {
         CurrentCam := 1
     }
 
-    Send(Format("{}", CurrentCam))
+    Send('{ScrollLock up}' . Format("{}", CurrentCam))
 }
-F16:: {
+ScrollLock & Media_Prev:: {
     global CurrentCam, LastCycle
 
     if LastCycle < 10000 {
@@ -332,6 +424,6 @@ F16:: {
         CurrentCam := 0
     }
 
-    Send(Format("{}", CurrentCam))
+    Send('{ScrollLock up}' . Format("{}", CurrentCam))
 }
 #HotIf

@@ -5,7 +5,7 @@ global ALT_TABBING := false
 global CONSECUTIVE_F13S := 0
 
 ; This is called when the wheel scrolls up. It's a function to allow dynamic binding with Hotkey()
-OnWheelUp(_) {
+OnWheelUp(*) {
     global ALT_TABBING
 
     if not ALT_TABBING {
@@ -17,7 +17,7 @@ OnWheelUp(_) {
 }
 
 ; This is called when the wheel scrolls down. It's a function to allow dynamic binding with Hotkey()
-OnWheelDown(_) {
+OnWheelDown(*) {
     global ALT_TABBING
 
     if not ALT_TABBING {
