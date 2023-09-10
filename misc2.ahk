@@ -11,6 +11,11 @@ CoordMode("Pixel", "Screen")
 ; Increase hotkey interval (for touchpad scrolling, and other stuff)
 A_MaxHotkeysPerInterval := 300
 
+; AHI
+#Include AutoHotInterception\AutoHotInterception.ahk
+
+global AHI := AutoHotInterception()
+
 #Include Utils.ahk
 #Include Explorer.ahk
 #Include Tabbing.ahk
@@ -37,9 +42,11 @@ A_MaxHotkeysPerInterval := 300
 ; Can be reactivated on a window-per-window basis
 F1::return
 
-; Alt+F5 to reload the script when developing
-ScrollLock & F14::
+; Reload the script when developing or it janks out
+F14 & LButton::
 !F5::Reload
+
+F14 & RButton::KeyHistory ; Or ListHotkeys, but this seems more useful
 
 ; Stupid mind shortcut for Alt+A to middle click
 !a::Send("{MButton}")

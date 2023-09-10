@@ -183,6 +183,11 @@ DropFiles(window, files) {
     DllCall("GlobalFree", "ptr", hGlobal)
 }
 
+; Checks whether `str` ends with `suffix`. Case sensitive. I think.
+StrEndsWith(str, suffix) {
+    return SubStr(str, -StrLen(suffix)) == suffix
+}
+
 ; Run a command in a hidden PowerShell window, and return its output
 ; It does a hacky pipe-into-clip to extract output, the alternative is save to a file
 ; I should eventually do the file thing. At the moment it drops old clipboard contents
@@ -194,4 +199,23 @@ ExecPS(command) {
     exec := shell.Run("powershell -Command `"" command "`" | clip", 0, True)
 
     return Trim(A_Clipboard, ' `t`n`r')
+}
+
+debug_gui_shown := false
+debug_gui := Gui('+Resize +AlwaysOnTop', 'Debug view')
+debug_text := debug_gui.AddText('', 'Blah blah blah whatever whatever')
+debug_text.Move(0, 0, 500, 200)
+
+; Show a message onto an always on top window
+; For debugging that requires viewing of latest rapidly-updating values
+DebugView(message) {
+    global debug_gui_shown
+
+    if not debug_gui_shown {
+        debug_gui.Show()
+        debug_gui.Move( , , 500, 300)
+        debug_gui_shown := true
+    }
+
+    debug_text.Text := message
 }

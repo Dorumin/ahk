@@ -208,7 +208,7 @@ F20:: {
 
         if dof_color == "0x22FF94" {
             MouseMove(380, 259)
-            LongPress("LButton", 100, 100)
+            LongPress("LButton", 35, 100)
         }
 
         MouseMove(595, 618)
