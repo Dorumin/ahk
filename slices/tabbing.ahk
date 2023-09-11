@@ -65,9 +65,8 @@ OnKeyboardStateChange(code, pressed) {
     }
 
     try {
-        ; This block can fail; it's fine. Fuck it.
-        try {
-            active_id := WinExist('A')
+        active_id := WinExist('A')
+        if active_id {
             active_title := active_id and WinGetTitle(active_id)
             ; DebugView(Format("Key state: {}`nPrior key: {}`nActive ID: {}`nActive title: {}`nActive shell: {}",
             ;     pressed,
@@ -80,8 +79,6 @@ OnKeyboardStateChange(code, pressed) {
             if StrEndsWith(active_title, '(Not Responding)') {
                 not_responding := true
             }
-        } catch as e {
-            MsgBox(Format('Error in inner tab block: {} at {}:{}', e.Message, e.File, e.Line))
         }
 
         if pressed == 1 {

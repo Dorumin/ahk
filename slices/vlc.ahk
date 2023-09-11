@@ -1,6 +1,32 @@
 ; Alt+Shift+E for screenshot, next frame in VLC
 #HotIf WinActive("ahk_exe vlc.exe")
 
+F21:: {
+    start := A_TickCount
+    bitmap := CGdip.Bitmap.FromScreen()
+    time_to_gen_bitmap := A_TickCount - start
+
+    pixels := Array()
+
+    Loop 100 {
+        x := A_Index
+
+        Loop 100 {
+            y := A_Index
+
+            bitmap.GetPixel(500 + x, 500 + y)
+        }
+    }
+
+    time_to_read_pixels := A_TickCount - start
+
+    DebugView(Format("format: {}`nTime to bitmap: {}`nTime to pixels: {}",
+        bitmap.GetPixelFormat(),
+        time_to_gen_bitmap,
+        time_to_read_pixels
+    ))
+}
+
 F19::
 !+e:: {
     ; Delay might be a little short for 4k video, but it works okay
@@ -39,11 +65,11 @@ F17:: {
     WinMove(left, 0, width, height, 'A')
 }
 
-; MButton dragging to move video progress bar
 holding_slider := false
 start_x := -1
 start_y := -1
 
+; MButton dragging to move video progress bar
 F22::
 MButton:: {
     global holding_slider, start_x, start_y
@@ -53,8 +79,8 @@ MButton:: {
     }
 
     holding_slider := true
-    MouseGetPos(&start_x, &start_y)
 
+    MouseGetPos(&start_x, &start_y)
     WinGetPos(&x, &y, &width, &height, 'A')
 
     MouseMove(x + 66, y + height - 60)

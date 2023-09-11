@@ -1,5 +1,3 @@
-#Include Utils.ahk
-
 global POSSIBLE_FILENAME_POSITIONS := [
     3,
     2
@@ -229,7 +227,7 @@ IsSceneBrowserOpen() {
     return (
         PixelGetColor(1725, 250, 'RGB') == '0x000000' ; Inner close button
         && PixelGetColor(1725, 242, 'RGB') == '0xFFFFFF' ; Outer close button
-        && PixelGetColor(800, 90, 'RGB') == '0x424242' ; Folder browser; modded
+        && ArrayIncludes(['0x6C6C6C', '0x424242'], PixelGetColor(800, 90, 'RGB')) ; Folder browser; modded
         ; && ArrayIncludes(['0x696868', '0x6A6967', '0x6C6C6A', '0x696866'], PixelGetColor(190, 250, 'RGB')) ; Translucent; useless
         ; && PixelGetColor(1650, 285, 'RGB') == '0xD9D9D9' ; Suspicious; uses buttons on the right. Might have shifted
     )
