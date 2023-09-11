@@ -296,8 +296,6 @@ SelectSceneInBrowser() {
     loop {
         color := PixelGetColor(SCENE_SCROLLBAR_X, current_scrollbar_y, 'RGB')
 
-        LogMessage(color)
-
         if color == SCENE_SCROLLBAR_COLOR {
             last_scrollbar_y := current_scrollbar_y
             break

@@ -1,7 +1,7 @@
 ﻿#Requires AutoHotkey v2.0
 
 ; DetectHiddenWindows 1
-#MaxThreadsPerHotkey 10
+; #MaxThreadsPerHotkey 10
 
 ; Base all coords on the screen for consistency
 ; Windowed stuff might need some math
@@ -12,9 +12,14 @@ CoordMode("Pixel", "Screen")
 A_MaxHotkeysPerInterval := 300
 
 ; AHI
-#Include AutoHotInterception\AutoHotInterception.ahk
+#Include lib\AutoHotInterception\AutoHotInterception.ahk
 
 global AHI := AutoHotInterception()
+
+; GDip
+#Include lib\GDip\GDip.ahk
+
+CGdip.Startup()
 
 #Include Utils.ahk
 #Include Explorer.ahk

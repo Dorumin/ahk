@@ -27,7 +27,7 @@ F15 & LButton:: {
     static LastWinHeight := 0
     static LastWinWidth := 0
 
-    ActiveWinID := WinGetList("A")[1]
+    ActiveWinID := WinExist('A')
 
     if ActiveWinID != LastWinID {
         LastWinID := ActiveWinID
