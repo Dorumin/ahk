@@ -21,4 +21,8 @@ ScrollLock & WheelUp::
 Media_Prev::^+
 Media_Next::^-
 
+; Forwards and backwards, full circle
+ScrollLock & WheelLeft::Send('{ScrollLock up}{XButton1}')
+ScrollLock & WheelRight::Send('{ScrollLock up}{XButton2}')
+
 #HotIf

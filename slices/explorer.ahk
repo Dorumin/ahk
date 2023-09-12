@@ -24,6 +24,9 @@ ScrollLock & WheelUp:: {
     Send("^+{Tab}")
 }
 
+ScrollLock & WheelLeft::Send('{ScrollLock up}{XButton1}')
+ScrollLock & WheelRight::Send('{ScrollLock up}{XButton2}')
+
 ; The top of the tabs is not glued to the top of the screen, which is LITERALLY THE WORST
 ; So if a click is done very close to the top of the screen, redirect it to be not so close
 ~LButton:: {

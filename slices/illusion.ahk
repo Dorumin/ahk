@@ -114,6 +114,31 @@ DropSelectedKKManager() {
     Send("{Ctrl down}u{Ctrl up}")
 }
 
+; GroupAdd('KKGameplay', 'ahk_exe KoikatsuSunshine.exe')
+; GroupAdd('KKStudio', 'ahk_exe CharaStudio.exe')
+; GroupAddMultiple('KKAny', 'ahk_group KKGameplay', 'ahk_group KKStudio')
+; GroupAdd('HS2Gameplay', 'ahk_exe HoneySelect2.exe')
+; GroupAdd('HS2Studio', 'ahk_exe StudioNEOV2.exe')
+; GroupAddMultiple('HS2Any', 'ahk_group HS2Gameplay', 'ahk_group HS2Studio')
+; GroupAddMultiple('IllusionGameplay', 'ahk_group KKGameplay', 'ahk_group HS2Gameplay')
+; GroupAddMultiple('IllusionStudio', 'ahk_group KKStudio', 'ahk_group HS2Studio')
+; GroupAddMultiple('IllusionAny', 'ahk_group KKAny', 'ahk_group HS2Any')
+
+GroupAddTree({
+    IllusionAny: {
+        KKAny: {
+            KKGameplay: 'ahk_exe KoikatsuSunshine.exe',
+            KKStudio: 'ahk_exe CharaStudio.exe'
+        },
+        HS2Any: {
+            HS2Gameplay: 'ahk_exe HoneySelect2.exe',
+            HS2Studio: 'ahk_exe StudioNEOV2.exe'
+        }
+    },
+    IllusionGameplay: ['KKGameplay', 'HS2Gameplay'],
+    IllusionStudio: ['KKStudio', 'HS2Studio']
+})
+
 ; KK Manager
 #HotIf WinActive("ahk_exe KKManager.exe") or MouseIsOver("ahk_exe KKManager.exe")
 F16::
@@ -144,7 +169,7 @@ ScrollLock & MButton:: {
 #HotIf
 
 ; KKS
-#HotIf WinActive("ahk_exe KoikatsuSunshine.exe") or WinActive("ahk_exe CharaStudio.exe")
+#HotIf WinActive("ahk_group KKAny")
 F1::F1
 
 F16:: {
@@ -163,7 +188,7 @@ Media_Prev::LongPress('XButton2', 500)
 #HotIf
 
 ; HS2
-#HotIf WinActive("ahk_exe StudioNEOV2.exe") or WinActive("ahk_exe HoneySelect2.exe")
+#HotIf WinActive("ahk_group HS2Any")
 
 F17::,
 
@@ -171,7 +196,7 @@ F18::Space
 #HotIf
 
 ; All games, all studios
-#HotIf WinActive("ahk_exe StudioNEOV2.exe") or WinActive("ahk_exe HoneySelect2.exe") or WinActive("ahk_exe KoikatsuSunshine.exe") or WinActive("ahk_exe CharaStudio.exe")
+#HotIf WinActive("ahk_group IllusionAny")
 ; Reset field of view
 ScrollLock & MButton::Send("{ScrollLock up}´")
 

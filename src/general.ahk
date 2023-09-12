@@ -5,6 +5,40 @@ DeclareGlobals(o) {
     }
 }
 
+GroupAddMultiple(group, titles*) {
+    for title in titles {
+        GroupAdd(group, title)
+    }
+}
+
+GroupAddTree(group, group_name := '') {
+    if not IsObject(group) {
+        throw TypeError('Tree must be an object')
+    }
+
+    if group is Array {
+        throw TypeError('Should never be passed an array directly')
+    }
+
+    for key, value in group.OwnProps() {
+        if value is Array {
+            for index, sub_group in value {
+                GroupAdd(key, 'ahk_group ' sub_group)
+            }
+        } else if IsObject(value) {
+            GroupAddTree(value, key)
+
+            if group_name {
+                GroupAdd(group_name, 'ahk_group ' key)
+            }
+        } else {
+            if group_name {
+                GroupAdd(group_name, value)
+            }
+        }
+    }
+}
+
 class Timer {
     startTicks := -1
 

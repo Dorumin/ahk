@@ -72,4 +72,7 @@ F17::^!Up
 
 ScrollLock & F16::!Down
 ScrollLock & F17::!Up
+
+WheelRight::^!Right
+
 #HotIf
