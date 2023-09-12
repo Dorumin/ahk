@@ -12,16 +12,16 @@
 }
 
 ; Tab switching with side buttons
-F16::Send("^+{Tab}")
-F17::Send("^{Tab}")
+F16::^+Tab
+F17::^Tab
 
 ; Center line mouse buttons for image zooming
-Media_Prev::Send('^{+}')
-Media_Next::Send('^{-}')
+Media_Prev::^+
+Media_Next::^-
 
 ; Alternative, more fine grained zooming
-F16 & WheelUp::Send('^{WheelUp}')
-F16 & WheelDown::Send('^{WheelDown}')
+F16 & WheelUp::^WheelUp
+F16 & WheelDown::^WheelDown
 
 ; Mouse alt button and center line button to pick current hovered color
 ; Returns you to the paintbrush tool. Idk how to return to previous tool
@@ -58,7 +58,7 @@ ScrollLock & WheelDown:: {
 }
 
 ; Undo/Redo with MAlt+side wheel buttons
-ScrollLock & WheelLeft::Send('^z')
-ScrollLock & WheelRight::Send('^y')
+ScrollLock & WheelLeft::^z
+ScrollLock & WheelRight::^y
 
 #HotIf

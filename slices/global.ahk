@@ -24,7 +24,7 @@ F14 & RButton:: {
 }
 
 ; Stupid mind shortcut for Alt+A to middle click
-!a::Send("{MButton}")
+!a::MButton
 
 ; Make combinator keys that I never use but are otherwise useful as characters
 ; send the key immediately. These bindings only really make sense in the Latin American keyboard layout

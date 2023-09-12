@@ -4,9 +4,8 @@ Y_COORD_TIER_3 := 915
 
 #HotIf WinActive("ahk_exe bg3_dx11.exe")
 
-F1::Send('{F1}')
-
-F16::Send('{Home}')
+F1::F1
+F16::Home
 F18::F5
 
 SelectOption(key, y_coord, x_index) {

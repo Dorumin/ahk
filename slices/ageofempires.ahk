@@ -1,18 +1,16 @@
 #HotIf WinActive("ahk_exe AoE2DE_s.exe")
 
-F2::
-^q:: {
-    Send("+,")
-}
+F2::+,
+^q::+,
 
-F1::Send('.')
-^F1::Send('+.')
+F1::.
+^F1::+.
 
-^a::Send('^+h')
+^a::^+h
 
-^s::Send('^+b') ; Barracks
-^d::Send('^+a') ; Archery
-^f::Send('^+l') ; Stables
-^g::Send('^+k') ; Siege
+^s::^+b ; Barracks
+^d::^+a ; Archery
+^f::^+l ; Stables
+^g::^+k ; Siege
 
 #HotIf

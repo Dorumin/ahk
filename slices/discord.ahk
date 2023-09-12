@@ -60,20 +60,16 @@ global lastClickedGuildHeight := -1
 }
 
 ; Iterate over channels with the mouse wheel
-Media_Prev::
-ScrollLock & WheelUp:: {
-    Send("!{Up}")
-}
+Media_Prev::!Up
+ScrollLock & WheelUp::!Up
 
-Media_Next::
-ScrollLock & WheelDown:: {
-    Send("!{Down}")
-}
+Media_Next::!Down
+ScrollLock & WheelDown::!Down
 
 ; Iterate over guilds with side buttons
-F16::Send("^!{Down}")
-F17::Send("^!{Up}")
+F16::^!Down
+F17::^!Up
 
-ScrollLock & F16::Send("!{Down}")
-ScrollLock & F17::Send("!{Up}")
+ScrollLock & F16::!Down
+ScrollLock & F17::!Up
 #HotIf

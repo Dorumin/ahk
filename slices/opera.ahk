@@ -18,7 +18,7 @@ ScrollLock & WheelUp::
 }
 
 ; Remap buttons below the scroll wheel to zoom
-Media_Prev::Send("^{+}")
-Media_Next::Send("^-")
+Media_Prev::^+
+Media_Next::^-
 
 #HotIf

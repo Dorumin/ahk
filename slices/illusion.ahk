@@ -145,7 +145,7 @@ ScrollLock & MButton:: {
 
 ; KKS
 #HotIf WinActive("ahk_exe KoikatsuSunshine.exe") or WinActive("ahk_exe CharaStudio.exe")
-$F1::Send("{F1}")
+F1::F1
 
 F16:: {
     try {
@@ -165,7 +165,7 @@ Media_Prev::LongPress('XButton2', 500)
 ; HS2
 #HotIf WinActive("ahk_exe StudioNEOV2.exe") or WinActive("ahk_exe HoneySelect2.exe")
 
-F17::Send(",")
+F17::,
 
 F18::Space
 #HotIf
@@ -173,12 +173,10 @@ F18::Space
 ; All games, all studios
 #HotIf WinActive("ahk_exe StudioNEOV2.exe") or WinActive("ahk_exe HoneySelect2.exe") or WinActive("ahk_exe KoikatsuSunshine.exe") or WinActive("ahk_exe CharaStudio.exe")
 ; Reset field of view
-ScrollLock & MButton::Send("´")
+ScrollLock & MButton::Send("{ScrollLock up}´")
 
 ; Reset camera roll (not yaw, not pitch)
-ScrollLock & RButton:: {
-    Send("{ScrollLock up}{Raw}}")
-}
+ScrollLock & RButton::Send("{ScrollLock up}{Raw}}")
 
 ; Scene effects
 F20:: {
