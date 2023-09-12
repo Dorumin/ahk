@@ -1,6 +1,4 @@
-﻿#Requires AutoHotkey v2.0
-
-WaterRight() {
+﻿WaterRight() {
 	Send("{d down}")
 	Sleep(50)
 	Send("{d up}")

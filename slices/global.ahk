@@ -16,7 +16,12 @@ F14 & LButton::
     Reload
 }
 
-F14 & RButton::KeyHistory ; Or ListHotkeys, but this seems more useful
+F14 & RButton:: {
+     ; Or ListHotkeys, but this seems more useful
+    KeyHistory
+    ; Scroll to the end in the hotkey list. End by itself doesn't do it
+    Send('^{End}')
+}
 
 ; Stupid mind shortcut for Alt+A to middle click
 !a::Send("{MButton}")

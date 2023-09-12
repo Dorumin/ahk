@@ -13,6 +13,21 @@ RepeatString(str, count) {
     return joined
 }
 
+; Join an array of values with `joiner`
+StrJoin(array, joiner := '') {
+    joined := ''
+
+    for index, value in array {
+        if index != 1 {
+            joined .= joiner
+        }
+
+        joined .= value
+    }
+
+    return joined
+}
+
 ; Checks whether `str` ends with `suffix`
 StrEndsWith(str, suffix, case_sensitive := true) {
     slice := SubStr(str, -StrLen(suffix))

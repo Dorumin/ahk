@@ -53,3 +53,46 @@ RestoreClipboard(callback, copy := false) {
 
     A_Clipboard := old_clipboard
 }
+
+class KeyHolder {
+    timer := Timer()
+    callback := -1
+    wait_until := -1
+
+    __New(buttons, increment := 50, max_delay := 250) {
+        this.buttons := buttons
+        this.increment := increment
+        this.max_delay := max_delay
+    }
+
+    Pressed(modifiers := '') {
+        this.wait_until := Max(this.wait_until, A_TickCount)
+        this.wait_until += this.increment
+        this.wait_until := Min(this.wait_until, A_TickCount + this.max_delay)
+
+        if this.timer.IsRunning() {
+            return
+        }
+
+        Send(StrJoin(ArrayMap(this.buttons, (btn, *) => '{' . btn . ' down}')))
+
+        this.timer.Start()
+
+        this.callback := () => this.OnTimer()
+        SetTimer(this.callback, this.increment)
+    }
+
+    OnTimer() {
+        LogMessage('KeyHolder timer ticked')
+
+        if this.wait_until > A_TickCount {
+            return
+        }
+
+        Send(StrJoin(ArrayMap(this.buttons, (btn, *) => '{' . btn . ' up}')))
+
+        LogMessage('KeyHolder Timer ended')
+        SetTimer(this.callback, 0)
+        this.timer.Reset()
+    }
+}

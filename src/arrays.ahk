@@ -48,3 +48,11 @@ ArrayFilter(array, filterfn) {
 
     return filtered
 }
+
+ArrayMap(array, mapper) {
+    mapped := []
+
+    ArrayForEach(array, (item, index) => mapped.Push(mapper(item, index)))
+
+    return mapped
+}

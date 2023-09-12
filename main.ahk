@@ -8,6 +8,8 @@ CoordMode("Pixel", "Screen")
 ; Increase hotkey interval (for touchpad scrolling, and other stuff)
 A_MaxHotkeysPerInterval := 300
 
+KeyHistory(500)
+
 ; AHI
 #Include lib/AutoHotInterception/AutoHotInterception.ahk
 

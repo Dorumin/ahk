@@ -253,7 +253,7 @@ SceneBrowserWorker() {
 
     ; TrayTipTimeout(1000, Format("cleared worker; current y at {}", last_scrollbar_y))
 
-    if last_scrollbar_y == -1 {
+    if last_scrollbar_y == -1 or last_scrollbar_y == SCENE_SCROLLBAR_START_Y {
         return
     }
 
@@ -321,105 +321,70 @@ F19:: {
 ; Stuff for adjusting zoom and roll
 global DownCount := 0
 global UpCount := 0
-global LeftCount := 0
-global RightCount := 0
 
-ScrollLock & WheelDown:: {
-    global
-    DownCount := DownCount + 1
-    LogMessage("DownCount++ " DownCount)
+zoom_in_holder := KeyHolder(['¿'])
+zoom_out_holder := KeyHolder(['+'])
 
-    Send("{+ down}")
-    Sleep(100)
+ScrollLock & WheelDown::zoom_out_holder.Pressed()
 
-    DownCount := DownCount - 1
-    LogMessage("DownCount-- " DownCount)
+ScrollLock & WheelUp::zoom_in_holder.Pressed()
 
-    if DownCount == 0 {
-        Send("{+ up}")
-    }
-}
+tilt_left_holder := KeyHolder(['.'], 100, 300)
+tilt_right_holder := KeyHolder(['<'], 100, 300)
 
-ScrollLock & WheelUp:: {
-    global
-    UpCount := UpCount + 1
-    LogMessage("UpCount++ " UpCount)
+tilt_fast_left_holder := KeyHolder(['shift', '.'], 100, 300)
+tilt_fast_right_holder := KeyHolder(['shift', '<'], 100, 300)
 
-    Send("{¿ down}")
-    Sleep(100)
+WheelLeft::tilt_left_holder.Pressed()
+WheelRight::tilt_right_holder.Pressed()
 
-    UpCount := UpCount - 1
-    LogMessage("UpCount-- " UpCount)
-
-    if UpCount == 0 {
-        Send("{¿ up}")
-    }
-}
-
-WheelLeft:: {
-    global
-    LeftCount := LeftCount + 1
-    LogMessage("LeftCount++ " LeftCount)
-
-    Send("{< down}")
-    Sleep(100)
-
-    LeftCount := LeftCount - 1
-    LogMessage("LeftCount-- " LeftCount)
-
-    if LeftCount == 0 {
-        Send("{< up}")
-    }
-}
-
-WheelRight:: {
-    global
-    RightCount := RightCount + 1
-    LogMessage("RightCount++ " RightCount)
-
-    Send("{. down}")
-    Sleep(100)
-
-    RightCount := RightCount - 1
-    LogMessage("RightCount-- " RightCount)
-
-    if RightCount == 0 {
-        Send("{. up}")
-    }
-}
+ScrollLock & WheelLeft::tilt_fast_left_holder.Pressed()
+ScrollLock & WheelRight::tilt_fast_right_holder.Pressed()
 
 ; Camera cycling
+last_cycle := -1
+last_cam := -1
 
-LastCycle := 0
-CurrentCam := 0
-ScrollLock & Media_Next:: {
-    global CurrentCam, LastCycle
+F24:: {
+    global last_cycle, last_cam
 
-    if LastCycle < 10000 {
-        LastCycle := A_TickCount
+    if last_cycle == -1 or last_cycle + 10000 < A_TickCount {
+        last_cam := 1
+    } else {
+        last_cam += 1
+
+        if last_cam > 10 {
+            last_cam := 1
+        }
     }
 
-    CurrentCam += 1
+    last_cycle := A_TickCount
 
-    if CurrentCam > 10 {
-        CurrentCam := 1
+    if last_cam == 10 {
+        Send('0')
+    } else {
+        Send(last_cam)
     }
-
-    Send('{ScrollLock up}' . Format("{}", CurrentCam))
 }
-ScrollLock & Media_Prev:: {
-    global CurrentCam, LastCycle
+F23:: {
+    global last_cycle, last_cam
 
-    if LastCycle < 10000 {
-        LastCycle := A_TickCount
+    if last_cycle == -1 or last_cycle + 10000 < A_TickCount {
+        last_cam := 10
+    } else {
+        last_cam -= 1
+
+        if last_cam < 1 {
+            last_cam := 10
+        }
     }
 
-    CurrentCam -= 1
+    last_cycle := A_TickCount
 
-    if CurrentCam < 0 {
-        CurrentCam := 0
+    if last_cam == 10 {
+        Send('0')
+    } else {
+        Send(last_cam)
     }
-
-    Send('{ScrollLock up}' . Format("{}", CurrentCam))
 }
 #HotIf

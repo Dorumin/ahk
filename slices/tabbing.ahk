@@ -67,7 +67,7 @@ OnKeyboardStateChange(code, pressed) {
     try {
         active_id := WinExist('A')
         if active_id {
-            active_title := active_id and WinGetTitle(active_id)
+            active_title := WinGetTitle(active_id)
             ; DebugView(Format("Key state: {}`nPrior key: {}`nActive ID: {}`nActive title: {}`nActive shell: {}",
             ;     pressed,
             ;     A_PriorKey,

@@ -7,6 +7,7 @@ Y_COORD_TIER_3 := 915
 F1::Send('{F1}')
 
 F16::Send('{Home}')
+F18::F5
 
 SelectOption(key, y_coord, x_index) {
     x_start := 0
