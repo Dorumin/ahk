@@ -16,8 +16,8 @@ F16::^+Tab
 F17::^Tab
 
 ; Center line mouse buttons for image zooming
-Media_Prev::^+
-Media_Next::^-
+Pause::^+
+Insert::^-
 
 ; Alternative, more fine grained zooming
 F16 & WheelUp::^WheelUp
@@ -25,7 +25,7 @@ F16 & WheelDown::^WheelDown
 
 ; Mouse alt button and center line button to pick current hovered color
 ; Returns you to the paintbrush tool. Idk how to return to previous tool
-ScrollLock & Media_Next:: {
+ScrollLock & Insert:: {
     Send('k') ; Select color picker
     Send('{LButton}') ; Click hovered button
     Send('b') ; Select paint brush

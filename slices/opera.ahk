@@ -18,8 +18,8 @@ ScrollLock & WheelUp::
 }
 
 ; Remap buttons below the scroll wheel to zoom
-Media_Prev::^+
-Media_Next::^-
+Pause::^+
+Insert::^-
 
 ; Forwards and backwards, full circle
 ScrollLock & WheelLeft::Send('{ScrollLock up}{XButton1}')

@@ -147,7 +147,7 @@ MButton:: {
     DropSelectedKKManager()
 }
 
-Media_Next::
+Insert::
 ScrollLock & MButton:: {
     Click()
     filepath := GetSelectedKKManager()
@@ -183,8 +183,8 @@ F16:: {
 F17::BackSpace
 F18::Space
 
-Media_Next::LongPress('XButton2', 50)
-Media_Prev::LongPress('XButton2', 500)
+Insert::LongPress('XButton2', 50)
+Pause::LongPress('XButton2', 500)
 #HotIf
 
 ; HS2

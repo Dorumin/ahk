@@ -4,17 +4,17 @@
 ; tab switching. However, it's cringe in that it's backwards
 ; (or maybe my mouse is backwards)
 F17::
-Media_Next:: {
+Insert:: {
     Send("^{PgDn}")
 }
 
 F16::
-Media_Prev:: {
+Pause:: {
     Send("^{PgUp}")
 }
 
-Media_Next up::
-Media_Prev up:: {
+Insert up::
+Pause up:: {
     ; nun (n++'s keybinds trigger on release, we have to disable them)
 }
 #HotIf

@@ -60,10 +60,10 @@ global lastClickedGuildHeight := -1
 }
 
 ; Iterate over channels with the mouse wheel
-Media_Prev::!Up
+Pause::!Up
 ScrollLock & WheelUp::!Up
 
-Media_Next::!Down
+Insert::!Down
 ScrollLock & WheelDown::!Down
 
 ; Iterate over guilds with side buttons
