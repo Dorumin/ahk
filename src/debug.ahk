@@ -31,3 +31,13 @@ DebugView(message) {
 
     debug_text.Text := message
 }
+
+FormatObjectProps(obj) {
+    s := ''
+
+    for key, value in obj.OwnProps() {
+        s .= Format('{}: {}`n', key, value)
+    }
+
+    return s
+}

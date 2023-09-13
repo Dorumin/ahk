@@ -67,3 +67,27 @@ class Timer {
         }
     }
 }
+
+BinarySearch(start, end, check_fn) {
+    left := start
+    right := end
+
+    while left <= right {
+        pivot := Floor((left + right) / 2)
+        status := check_fn(pivot)
+
+        if status == 'less' {
+            right := pivot - 1
+        } else if status == 'more' {
+            left := pivot + 1
+        } else {
+            return pivot
+        }
+    }
+
+    throw IndexError('No value found by search')
+}
+
+Clamp(minimum, number, maximum) {
+    return Min(maximum, Max(minimum, number))
+}

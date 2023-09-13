@@ -65,14 +65,53 @@ F17:: {
     WinMove(left, 0, width, height, 'A')
 }
 
+SLIDER_PROGRESS_SEEN := [0xFF287DCC]
+SLIDER_PROGRESS_UNSEEN := [0xFFDBDBDB, 0xFFD0D0D0]
+SLIDER_PROGRESS_CURSOR := [0xFFC8C8C8]
+SLIDER_PROGRESS_CURSOR_WIDTH := 6
+
 holding_slider := false
 start_x := -1
 start_y := -1
 
+FindProgressPixel(&progress_x, &progress_y) {
+    WinGetPos(&vlc_x, &vlc_y, &vlc_width, &vlc_height, 'A')
+
+    progress_bar_scan_line_x := Max(0, vlc_x)
+    progress_bar_scan_line_y := vlc_y + vlc_height - 49 ; 49 adds up to the bottom stuff size, even fullscreen
+
+    screen := CGdip.Bitmap.FromScreen(progress_bar_scan_line_x '|' progress_bar_scan_line_y '|' vlc_width '|1')
+    found_pixel := vlc_x + BinarySearch(0, screen.GetWidth(), (x) =>
+        ArrayIncludes(SLIDER_PROGRESS_UNSEEN, screen.GetPixel(x, 0))
+            ? 'less'
+            : ArrayIncludes(SLIDER_PROGRESS_SEEN, screen.GetPixel(x, 0))
+                ? 'more'
+                : true
+    )
+
+    found_pixel := Clamp(vlc_x + 72, found_pixel, vlc_x + vlc_width - 72)
+
+    LogMessage(FormatObjectProps({
+        width: screen.GetWidth(),
+        vlc_x: vlc_x,
+        vlc_width: vlc_width,
+        found_pixel: found_pixel
+    }))
+
+    progress_x := found_pixel
+    progress_y := progress_bar_scan_line_y
+}
+
 ; MButton dragging to move video progress bar
-F22::
+Insert::
 MButton:: {
     global holding_slider, start_x, start_y
+
+    try {
+        FindProgressPixel(&progress_x, &progress_y)
+    } catch as e {
+        MsgBox(e.Message ' at ' e.Line)
+    }
 
     if holding_slider {
         return
@@ -83,11 +122,12 @@ MButton:: {
     MouseGetPos(&start_x, &start_y)
     WinGetPos(&x, &y, &width, &height, 'A')
 
-    MouseMove(x + 66, y + height - 60)
+    MouseMove(progress_x, progress_y)
+    ; MouseMove(x + 66, y + height - 60)
     Send('{LButton down}')
 }
 
-F22 up::
+Insert up::
 MButton up:: {
     global holding_slider, start_x, start_y
     Send('{LButton up}')
