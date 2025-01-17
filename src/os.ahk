@@ -22,7 +22,7 @@ ExecPS(command) {
     shell := ComObject("WScript.Shell")
     ; exec := shell.Exec("powershell -Command `"" command "`"")
     ; return exec.StdOut.ReadAll()
-    exec := shell.Run("powershell -Command `"" command "`" | clip", 0, True)
+    exec := shell.Run("powershell -Command `"" StrReplace(command, '"', '\"') "`" | clip", 0, True)
 
     return Trim(A_Clipboard, ' `t`n`r')
 }

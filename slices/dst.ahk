@@ -1,3 +1,5 @@
+#Include ../src/all.ahk
+
 global HotCaneSwitching := false
 global HadCaneEquipped := false
 global SHOW_HEX := false
@@ -21,80 +23,18 @@ global UNEQUIPPEDS := [
 ]
 
 #HotIf WinActive("ahk_exe dontstarve_steam_x64.exe")
-; Alt+Shift+F toggle autocaner
-F14:: {
-    global
-
-    SoundBeep()
-
-    HotCaneSwitching := !HotCaneSwitching
-    HadCaneEquipped := true
-
-    if SHOW_HEX {
-        equipped_color := PixelGetColor(1319, 1038, "RGB Alt")
-        unequipped_color := PixelGetColor(453, 1038, "RGB Alt")
-
-        MsgBox("equipped: " equipped_color "`nunequipped color: " unequipped_color)
-    }
-}
-
-; Movement keys that equips cane
-~w::
-~a::
-~s::
-~d:: {
-    global
-
-    if not HotCaneSwitching {
-        return
-    }
-
-    unequipped_color := PixelGetColor(453, 1038, "RGB Alt")
-
-    if ArrayIncludes(UNEQUIPPEDS, unequipped_color) {
-        HadCaneEquipped := false
-    }
-
-    if not HadCaneEquipped {
-        Send("1")
-        HadCaneEquipped := true
-    }
-}
-
-; Fight key that unequips cane
-~f:: {
-    global
-
-    if not HotCaneSwitching {
-        return
-    }
-
-    equipped_color := PixelGetColor(1319, 1038, "RGB Alt")
-
-    if ArrayIncludes(EQUIPPEDS, equipped_color) {
-        HadCaneEquipped := true
-    }
-
-    if HadCaneEquipped {
-        Send("1")
-        HadCaneEquipped := false
-    }
-}
-
-F22::RestoreMousePosition(true, () => (
+; Quick sell
+F22:: RestoreMousePosition(true, () => (
     Click()
     Sleep(100)
-
     MouseMove(1180, 985, 0)
     Sleep(100)
     Click(1180, 985)
     Sleep(100)
-
     MouseMove(960, 820, 0)
     Sleep(100)
     Click(960, 820)
     Sleep(100)
-
     MouseMove(790, 615, 2)
     Sleep(100)
     Click(790, 615)

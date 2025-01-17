@@ -1,3 +1,5 @@
+#Include ../src/all.ahk
+
 ; Alt+Shift+E for screenshot, next frame in VLC
 #HotIf WinActive("ahk_exe vlc.exe")
 
@@ -91,18 +93,12 @@ FindProgressPixel(&progress_x, &progress_y) {
 
     found_pixel := Clamp(vlc_x + 72, found_pixel, vlc_x + vlc_width - 72)
 
-    LogMessage(FormatObjectProps({
-        width: screen.GetWidth(),
-        vlc_x: vlc_x,
-        vlc_width: vlc_width,
-        found_pixel: found_pixel
-    }))
-
     progress_x := found_pixel
     progress_y := progress_bar_scan_line_y
 }
 
 ; MButton dragging to move video progress bar
+F18::
 Insert::
 MButton:: {
     global holding_slider, start_x, start_y
@@ -127,6 +123,7 @@ MButton:: {
     Send('{LButton down}')
 }
 
+F18 up::
 Insert up::
 MButton up:: {
     global holding_slider, start_x, start_y
@@ -136,5 +133,16 @@ MButton up:: {
 
     holding_slider := false
 }
+
+Pause::
+Escape::
+BackSpace::WinClose('A')
+
+WheelUp::Left
+WheelDown::Right
+ScrollLock & WheelUp::^Left
+ScrollLock & WheelLeft::^Left
+ScrollLock & WheelDown::^Right
+ScrollLock & WheelRight::^Right
 
 #HotIf

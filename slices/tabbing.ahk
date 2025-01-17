@@ -1,6 +1,8 @@
 ; This file does some very fancy stuff with a single key + the scroll wheel to do alt tabbing solely with the mouse
 ; Assuming you have a key on your mouse to power this, of course. I use F13, which is mapped by a mouse side button
 
+#Include ../src/all.ahk
+
 tab_key_held := false
 is_alt_tabbing := false
 not_responding := false
@@ -68,6 +70,8 @@ OnKeyboardStateChange(code, pressed) {
         active_id := WinExist('A')
         if active_id {
             active_title := WinGetTitle(active_id)
+            active_class := WinGetClass(active_id)
+            active_controls := WinGetControls(active_id)
             ; DebugView(Format("Key state: {}`nPrior key: {}`nActive ID: {}`nActive title: {}`nActive shell: {}",
             ;     pressed,
             ;     A_PriorKey,
@@ -75,8 +79,22 @@ OnKeyboardStateChange(code, pressed) {
             ;     active_title,
             ;     WinActive('ahk_class Shell_TrayWnd')
             ; ))
+            unresponsive := ((
+                StrEndsWith(active_title, '(Not Responding)')
+            ) or (
+                ; "Not responding... close" window
+                active_class == "#32770"
+                and active_controls.Length == 17
+            ))
 
-            if StrEndsWith(active_title, '(Not Responding)') {
+            ; LogMessage(Format("tabbing active title: {} active class: {} control count: {} unresp: {}",
+            ;     active_title,
+            ;     active_class,
+            ;     active_controls.Length,
+            ;     unresponsive
+            ; ))
+
+            if unresponsive {
                 not_responding := true
             }
         }
@@ -140,9 +158,11 @@ OnTabKeyUp() {
             ; Key detail: When explorer.exe is focused, it DOESN'T focus
             ; the second item in the tab list automatically. It sticks to the first
             if WinActive('ahk_class Shell_TrayWnd') {
-                Send("!^{Tab}")
-                Sleep(0)
-                Send('{Tab}')
+                Send('{Alt down}{Ctrl down}{Tab}{Tab}{Ctrl up}{Alt up}')
+                ; Send("!^{Tab}")
+                ; It needs to wait a bit to show the damn tab ui
+                ; Sleep(100)
+                ; Send('{Tab}')
             } else {
                 Send("!^{Tab}")
             }

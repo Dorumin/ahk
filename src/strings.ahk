@@ -49,3 +49,7 @@ StrStartsWith(str, prefix, case_sensitive := true) {
         return slice == prefix
     }
 }
+
+SplitLines(str, limit := -1) {
+    return StrSplit(str, ["`r`n", "`n"], , limit)
+}

@@ -1,3 +1,5 @@
+#Include debug.ahk
+
 globals := {}
 DeclareGlobals(o) {
     for key, value in o.OwnProps() {
@@ -11,30 +13,41 @@ GroupAddMultiple(group, titles*) {
     }
 }
 
-GroupAddTree(group, group_name := '') {
-    if not IsObject(group) {
+GroupAddTree(group_tree, group_name := '') {
+    if not IsObject(group_tree) {
         throw TypeError('Tree must be an object')
     }
 
-    if group is Array {
+    if group_tree is Array {
         throw TypeError('Should never be passed an array directly')
     }
 
-    for key, value in group.OwnProps() {
-        if value is Array {
+    for key, value in group_tree.OwnProps() {
+        if value is String {
+            ; Create leaf group with selector
+            GroupAdd(key, value)
+            ; Add leaf to parent
+            GroupAdd(group_name, Format('ahk_group {}', key))
+        } else if value is Array {
+            if group_name != '' {
+                throw TypeError('Self-references should be at the top level')
+            }
+
+            ; Extend an existing group with arbitrary sub-groups
+            ; Mostly to break out of the inherent tree structure of objects,
+            ; and to be able to create self-referential trees
+
             for index, sub_group in value {
-                GroupAdd(key, 'ahk_group ' sub_group)
+                GroupAdd(key, Format('ahk_group {}', sub_group))
             }
         } else if IsObject(value) {
             GroupAddTree(value, key)
 
-            if group_name {
-                GroupAdd(group_name, 'ahk_group ' key)
+            if group_name != '' {
+                GroupAdd(group_name, Format('ahk_group {}', key))
             }
         } else {
-            if group_name {
-                GroupAdd(group_name, value)
-            }
+            throw TypeError(Format('Unrecognized type for tree value. Key: {}. Value type: {}. Value: {}', key, value, Type(value)))
         }
     }
 }

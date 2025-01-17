@@ -1,3 +1,5 @@
+#Include strings.ahk
+
 ; Hold a key for a specified duration, and delay after.
 ; For delay around, just use sleep. idgaf. This is just the most common use case
 LongPress(which, duration, after := 0) {
@@ -49,9 +51,12 @@ RestoreClipboard(callback, copy := false) {
         ClipWait(2)
     }
 
-    callback(A_Clipboard, old_clipboard)
+    CallSafe(callback, A_Clipboard, old_clipboard)
+    final_clipboard := A_Clipboard
 
     A_Clipboard := old_clipboard
+
+    return final_clipboard
 }
 
 class KeyHolder {
@@ -74,7 +79,7 @@ class KeyHolder {
             return
         }
 
-        Send(StrJoin(ArrayMap(this.buttons, (btn, *) => '{' . btn . ' down}')))
+        Send(StrJoin(ArrayMap(this.buttons, (btn, _*) => '{' . btn . ' down}')))
 
         this.timer.Start()
 
@@ -83,15 +88,15 @@ class KeyHolder {
     }
 
     OnTimer() {
-        LogMessage('KeyHolder timer ticked')
+        ; LogMessage('KeyHolder timer ticked')
 
         if this.wait_until > A_TickCount {
             return
         }
 
-        Send(StrJoin(ArrayMap(this.buttons, (btn, *) => '{' . btn . ' up}')))
+        Send(StrJoin(ArrayMap(this.buttons, (btn, _*) => '{' . btn . ' up}')))
 
-        LogMessage('KeyHolder Timer ended')
+        ; LogMessage('KeyHolder Timer ended')
         SetTimer(this.callback, 0)
         this.timer.Reset()
     }

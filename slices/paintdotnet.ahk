@@ -61,4 +61,12 @@ ScrollLock & WheelDown:: {
 ScrollLock & WheelLeft::^z
 ScrollLock & WheelRight::^y
 
+; Merge all layers and save
+; Currently just saves one layer lol I'm lazy
+F18:: {
+    Send('^m^s')
+    Sleep(550)
+    Send('^z')
+}
+
 #HotIf

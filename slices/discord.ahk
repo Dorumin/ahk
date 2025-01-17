@@ -1,3 +1,5 @@
+#Include ../src/all.ahk
+
 global SELECTED_COLOR := "0xF2F3F5"
 
 global GUILD_CLICK_X := 40
@@ -67,11 +69,47 @@ Insert::!Down
 ScrollLock & WheelDown::!Down
 
 ; Iterate over guilds with side buttons
-F16::^!Down
-F17::^!Up
+F16::GuildDown()
+F17::GuildUp()
 
-ScrollLock & F16::!Down
-ScrollLock & F17::!Up
+GUILD_SELECTED_COLOR := 0xfff2f3f5
+GUILD_INDICATOR_PIXELS := [
+    31,
+    97,
+    153,
+    209,
+    265
+]
+
+GuildDown() {
+    left_col := CGdip.Bitmap.FromScreen('1|1|1|' A_ScreenHeight)
+
+    guild_index := ArrayFindIndex(GUILD_INDICATOR_PIXELS, (y) => left_col.GetPixel(0, y) == GUILD_SELECTED_COLOR)
+
+    if not guild_index or (guild_index + 1) > GUILD_INDICATOR_PIXELS.Length {
+        Send('^!{Down}')
+        return
+    }
+
+    next_y := GUILD_INDICATOR_PIXELS[guild_index + 1]
+
+    RestoreMousePosition(true, () => Click(35, next_y))
+}
+
+GuildUp() {
+    left_col := CGdip.Bitmap.FromScreen('1|1|1|' A_ScreenHeight)
+
+    guild_index := ArrayFindIndex(GUILD_INDICATOR_PIXELS, (y) => left_col.GetPixel(0, y) == GUILD_SELECTED_COLOR)
+
+    if not guild_index or guild_index = 1 {
+        Send('^!{Up}')
+        return
+    }
+
+    next_y := GUILD_INDICATOR_PIXELS[guild_index - 1]
+
+    RestoreMousePosition(true, () => Click(35, next_y))
+}
 
 WheelRight::^!Right
 

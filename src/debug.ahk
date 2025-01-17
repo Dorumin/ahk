@@ -8,9 +8,13 @@ LogMessage(text) {
         return
     }
 
-    DateString := Format("{}-{}-{} {}:{}:{}.{}", A_Year, A_Mon, A_MDay, A_Hour, A_Min, A_Sec, A_MSec)
+    date_string := Format("{}-{}-{} {}:{}:{}.{}", A_Year, A_Mon, A_MDay, A_Hour, A_Min, A_Sec, A_MSec)
 
-    FileAppend(DateString " " text "`n", A_ScriptDir "\log.txt")
+    indented_text := StrReplace(text, '`n', '`n' RepeatString(' ', StrLen(date_string) + 1))
+
+    try {
+        FileAppend(date_string " " indented_text "`n", A_ScriptDir "\log.log")
+    }
 }
 
 debug_gui_shown := false

@@ -36,6 +36,7 @@ For callbacks that take arguments, you may ignore them using a * to capture vara
 ; Since in AHK, everything goes in the global scope anyways, modules are a scam and a social construct
 ; This file just imports all other utility files for consumers
 
+#Include libs.ahk
 #Include general.ahk
 #Include arrays.ahk
 #Include debug.ahk
@@ -43,3 +44,7 @@ For callbacks that take arguments, you may ignore them using a * to capture vara
 #Include input.ahk
 #Include os.ahk
 #Include strings.ahk
+#Include interception.ahk
+#Include listeners.ahk
+#Include screen.ahk
+#Include persist.ahk
