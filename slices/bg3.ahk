@@ -13,11 +13,15 @@ F18::F5
 SelectOption(key, y_coord, x_index) {
     x_start := 0
 
-    if PixelGetColor(629, 1030, 'RGB') == "0x633C24" {
+    ; MsgBox(PixelGetColor(629, 1030, 'RGB'))
+    ; MsgBox(PixelGetColor(575, 1030, 'RGB'))
+    ; MsgBox(PixelGetColor(553, 1030, 'RGB'))
+
+    if PixelGetColor(629, 1030, 'RGB') == "0x502B17" {
         x_start := 665
-    } else if PixelGetColor(575, 1030, 'RGB') == "0x7B492D" {
+    } else if PixelGetColor(575, 1030, 'RGB') == "0x69381F" { ; 0x7B492D or 69381f
         x_start := 610
-    } else if PixelGetColor(553, 1030, 'RGB') == '0x7B492D' {
+    } else if PixelGetColor(553, 1030, 'RGB') == '0x69381F' { ; 0x7B492D
         x_start := 590
     }
 
@@ -28,7 +32,8 @@ SelectOption(key, y_coord, x_index) {
 
         RestoreMousePosition(true, () => (
             MouseMove(x, y_coord)
-            LongPress('LButton', 5, 70)
+            Sleep(30)
+            LongPress('LButton', 15, 70)
         ))
     }
 }

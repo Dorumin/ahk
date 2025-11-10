@@ -13,10 +13,10 @@ FindFirstExistingFile(filePaths) {
 }
 
 ; Function for dropping a list of file paths into application matched by a WindowTitle
-DropFiles(window, files) {
+DropFiles(window_hwnd, file_paths) {
     memRequired := 0
 
-    for k, v in files {
+    for k, v in file_paths {
         memRequired += StrLen(v) + 1
     }
 
@@ -26,14 +26,14 @@ DropFiles(window, files) {
     offset := 20
     NumPut("uint", 20, dropfiles, 0)
 
-    for k, v in files {
+    for k, v in file_paths {
         StrPut(v, dropfiles + offset, StrLen(v), "utf-8")
         offset += StrLen(v) + 1
     }
 
     DllCall("GlobalUnlock", "ptr", hGlobal)
 
-    PostMessage(0x233, hGlobal, 0, , window)
+    PostMessage(0x233, hGlobal, 0, , window_hwnd)
     DllCall("GlobalFree", "ptr", hGlobal)
 }
 

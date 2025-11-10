@@ -6,6 +6,8 @@ global POSSIBLE_FILENAME_POSITIONS := [
     2
 ]
 
+global coming_from_win_id := 0
+
 ; In KKManager, the file path of the selected card
 ; Hardcoded for reflections in specific game paths
 GetSelectedKKManager() {
@@ -84,6 +86,7 @@ GetSelectedKKManager() {
                 "D:\Games\IS\HS3\UserData\chara\reflection\" filename,
                 "D:\Games\IS\HS2\UserData\chara\recent\" filename,
                 "D:\Games\IS\HS2\UserData\chara\female\" filename,
+                "D:\Games\IS\HS2\UserData\chara\export\" filename,
                 "D:\Games\IS\HS2\UserData\chara\male\" filename,
             ])
         default:
@@ -94,7 +97,7 @@ GetSelectedKKManager() {
 ; Relinks a file_path symlink (or file) into a /recent/ tracking folder
 TrackRecentSelected(file_path) {
     ; Resolve symlink path. This works on regular files too
-    file_target := ExecPS("(Get-ChildItem '" file_path "').Target")
+    file_target := Trim(ExecPS3("(Get-ChildItem '" file_path "').Target"), ' `n`t`r')
     ; Get the stem past chara for the target
     file_target_stem := RegExReplace(file_target, '.+?\\chara\\\w+\\', '')
     ; Get the static prefix up to chara for the target
@@ -102,20 +105,28 @@ TrackRecentSelected(file_path) {
     ; Map the stem to lowercase, turn into valid component by replacing separators
     recent_stem := RegExReplace(StrLower(file_target_stem), '\\|/', '.')
     ; Reconstruct path with prefix
-    recent_path := chara_prefix '\\recent\\' recent_stem
+    recent_path := chara_prefix '\recent\' recent_stem
 
     ; Relink target to new static location in /recent/
-    ExecPS('cmd /c mklink "' recent_path '" "' file_target '"')
+    ExecPS3('cmd /c mklink "' recent_path '" "' file_target '"')
 }
 
 ; Reusable fn for getting the selected card path and dropping it into the Unity game
-DropSelectedKKManager() {
+DropSelectedKKManager(track) {
+    global coming_from_win_id
+
     game_window_ids := WinGetList("ahk_class UnityWndClass")
-    game_window_id := WinExist("ahk_class UnityWndClass")
+    ; game_window_id := WinExist("ahk_class UnityWndClass")
     file_path := GetSelectedKKManager()
     file_list := [ file_path ]
 
-    TrackRecentSelected(file_path)
+    if ArrayIncludes(game_window_ids, coming_from_win_id) {
+        game_window_ids := [ coming_from_win_id ]
+    }
+
+    if track {
+        TrackRecentSelected(file_path)
+    }
 
     for game_window_id in game_window_ids {
         DropFiles(game_window_id, file_list)
@@ -152,9 +163,15 @@ GroupAddTree({
 ; KK Manager
 #HotIf WinActive("ahk_exe KKManager.exe") or MouseIsOver("ahk_exe KKManager.exe")
 F19:: {
-    RestoreMousePosition(true, () => Click(1435, 620))
+    RestoreMousePosition(true, () => Click(1340, 620))
     Click()
-    DropSelectedKKManager()
+    DropSelectedKKManager(true)
+}
+
+Pause:: {
+    RestoreMousePosition(true, () => Click(1340, 620))
+    Click()
+    DropSelectedKKManager(false)
 }
 
 ScrollLock & F19:: {
@@ -162,7 +179,7 @@ ScrollLock & F19:: {
     RestoreMousePosition(true, () => Click(1300, 620))
     Click()
     file_path := GetSelectedKKManager()
-    file_target := ExecPS("(Get-ChildItem '" file_path "').Target")
+    file_target := ExecPS3("(Get-ChildItem '" file_path "').Target")
 
     if file_target && file_target != "" {
         ; Target is a symlink, we can delete it
@@ -182,7 +199,7 @@ ScrollLock & MButton:: {
 
     attrs := FileGetAttrib(filepath)
 
-    truepath := ExecPS("Get-Item -Path '" filepath "' | Select-Object -ExpandProperty Target")
+    truepath := ExecPS3("Get-Item -Path '" filepath "' | Select-Object -ExpandProperty Target")
     truefilename := ""
     truedir := ""
 
@@ -198,7 +215,11 @@ ScrollLock & MButton:: {
 
 #HotIf WinActive("ahk_group IllusionAny")
 F19:: {
+    global coming_from_win_id
+
     try {
+        coming_from_win_id := WinActive()
+
         WinActivate('ahk_exe KKManager.exe')
         ; RestoreMousePosition(true, () => Click(50, 10))
         ; Send('{Esc}')
@@ -230,6 +251,9 @@ ScrollLock & WheelUp::zoom_in_holder.Pressed()
 F17::BackSpace
 
 #HotIf
+
+:RC1*:cusr::{{user}}
+:RC1*:cchr::{{char}}
 
 ; HS2
 #HotIf WinActive("ahk_group HS2Any")
@@ -390,7 +414,7 @@ ScrollLock & WheelRight::tilt_fast_right_holder.Pressed()
 
 #HotIf WinActive('ahk_exe WildLifeC-Win64-Shipping.exe')
 
-F17::Send('h')
+; F17::Send('h')
 
 wl_f18_held := false
 F18:: {
@@ -428,24 +452,35 @@ for index, device in devices {
     }
 }
 
-F16 & LButton::Send('e')
+F16::e
+F16 & LButton::i
 F16 & RButton::Send('r')
 F16 & Pause::Send('t')
 F16 & Insert::Send('f')
 F16 & MButton::Send('y')
+F16 & WheelRight::SendQueue('{Shift down}', 50, 'l', 50, '{Shift up}')
+
+F17::H
+F17 & LButton::a
+F17 & RButton::d
+F17 & Pause::w
+F17 & Insert::s
+F17 & WheelLeft::q
+F17 & WheelRight::e
 
 F19 & LButton::Send('y')
 
 F24 & RButton::Send('{Tab}')
-F24 & MButton:: {
+F24 & Pause:: {
     Send('{Escape}')
-    PixelWait(315, 960, ['0x898989'])
+    PixelWait(315, 960, [0xa6a6a6, 0x898989, 0x989898, 0x999999], -1, 3)
     Click(315, 960)
-    PixelWait(750, 595, ['0x3F3F3F'])
-    Click(750, 595)
-    PixelWait(210, 755, ['0x999999'])
-    Click(210, 755)
-    PixelWait(845, 740, ['0xDEDBC7'])
+    PixelWait(750, 595, [0x3f3f3f, 0x505050], -1, 3)
+    ; Click(750, 595)
+    MouseMove(750, 595)
+    PixelWait(225, 655, [0x999999], -1, 3)
+    Click(225, 655)
+    PixelWait(845, 740, [0xe3e0cf, 0xdedbc7], -1, 3)
     Click(845, 740)
 }
 
@@ -623,7 +658,7 @@ SelectSceneInBrowser() {
         LongPress('LButton', 50, 100)
     } else {
         LongPress('LButton', 50, 50)
-        PixelWait(823, 675, ['0xFAFAFA', '0xF9F9F9'])
+        PixelWait(823, 675, [0xFAFAFA, 0xF9F9F9])
 
         MouseMove(823, 675)
         Sleep(50)
@@ -689,10 +724,15 @@ F16:: {
 last_cycle := -1
 last_cam := -1
 
-F24:: {
+F24 & RButton:: {
     global last_cycle, last_cam
 
     if last_cycle == -1 or last_cycle + 10000 < A_TickCount {
+        wid := WinActive()
+        LogMessage('start cycle up' wid)
+        WinActivate('ahk_class Progman')
+        WinActivate(wid)
+
         last_cam := 1
     } else {
         last_cam += 1
@@ -710,10 +750,16 @@ F24:: {
         Send(last_cam)
     }
 }
-F23:: {
+
+F24 & LButton:: {
     global last_cycle, last_cam
 
     if last_cycle == -1 or last_cycle + 10000 < A_TickCount {
+        wid := WinActive()
+        LogMessage('start cycle down' wid)
+        WinActivate('ahk_class Progman')
+        WinActivate(wid)
+
         last_cam := 10
     } else {
         last_cam -= 1
@@ -779,12 +825,14 @@ F22 & RButton:: {
 F23 & RButton::^i
 F23 & MButton::!v
 
-F2::{
-    Send('{Shift down}')
-    Sleep(25)
-    Send('r')
-    Sleep(25)
-    Send('{Shift up}')
+F2::SendQueue('{Shift down}', 25, 'r', 25, '{Shift up}', 25, RepeatString('{BS}', 30))
+
+ScrollLock & F24:: {
+    Send('{ScrollLock up}{g down}')
+}
+
+ScrollLock & F24 up:: {
+    Send('{ScrollLock up}{g up}')
 }
 
 #HotIf

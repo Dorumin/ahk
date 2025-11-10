@@ -14,7 +14,11 @@ EnsureExplorerActive() {
     if not_responding and not WinActive('ahk_class Shell_TrayWnd') {
         WinActivate('ahk_class Shell_TrayWnd')
         not_responding := false
+
+        return true
     }
+
+    return false
 }
 
 ; Wheel handlers, functions to allow dynamic binding with Hotkey()
@@ -58,6 +62,10 @@ for index, device in devices {
     }
 }
 
+TabFocused() {
+    return WinActive('ahk_class XamlExplorerHostIslandWindow')
+}
+
 OnKeyboardStateChange(code, pressed) {
     global not_responding
 
@@ -68,10 +76,15 @@ OnKeyboardStateChange(code, pressed) {
 
     try {
         active_id := WinExist('A')
+
         if active_id {
+            ; WinGetPos(&x, &y, &w, &h, active_id)
+
             active_title := WinGetTitle(active_id)
             active_class := WinGetClass(active_id)
             active_controls := WinGetControls(active_id)
+
+            ; LogMessage(Format("title: {} x: {} y: {} w: {} h: {}", active_title, x, y, w, h))
             ; DebugView(Format("Key state: {}`nPrior key: {}`nActive ID: {}`nActive title: {}`nActive shell: {}",
             ;     pressed,
             ;     A_PriorKey,
@@ -144,7 +157,7 @@ OnTabKeyUp() {
     Hotkey("WheelUp", "Off")
     Hotkey("WheelDown", "Off")
 
-    EnsureExplorerActive()
+    was_not_responding := EnsureExplorerActive()
 
     if is_alt_tabbing {
         ; Target window was selected via scroll wheel
@@ -152,7 +165,11 @@ OnTabKeyUp() {
     } else {
         if Mod(consecutive_tab_presses, 2) == 0 {
             ; Submit when pressing F13 twice in a row
-            Send("{Enter}")
+            if not TabFocused() {
+                LogMessage('enter when not focused')
+            } else {
+                Send("{Enter}")
+            }
         } else {
             ; Ctrl+Alt+Tab toggles the alt+tab menu for clicking
             ; Key detail: When explorer.exe is focused, it DOESN'T focus

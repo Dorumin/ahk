@@ -23,6 +23,7 @@ global UNEQUIPPEDS := [
 ]
 
 #HotIf WinActive("ahk_exe dontstarve_steam_x64.exe")
+
 ; Quick sell
 F22:: RestoreMousePosition(true, () => (
     Click()

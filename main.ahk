@@ -18,7 +18,11 @@ KeyHistory(500)
 #Include slices/global.ahk
 #Include slices/ageofempires.ahk
 #Include slices/bg3.ahk
+#Include slices/blender.ahk
+#Include slices/bmc.ahk
 #Include slices/browser.ahk
+#Include slices/bstack.ahk
+#Include slices/conhost.ahk
 #Include slices/discord.ahk
 #Include slices/dst.ahk
 #Include slices/explorer.ahk

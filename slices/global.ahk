@@ -58,15 +58,24 @@ WindowEventCallback(event) {
             MsgBox('failed validation: only one explorer window open, but is not added window.')
         }
 
+        ; new explorer window is ours, we gucci
         return
     }
 
     existing_explorer_id := ArrayFilter(explorer_windows, (id) => id != event.id)[1]
     text := WinGetText(event.id)
-    RegExMatch(text, 'm)^Address: (?<address>.+)$', &address_match)
+    RegExMatch(text, 'm)^(?<address>.+)$', &address_match)
+
+    ; LogMessage('new-explorer-window: ' address_match.address)
+
+    ; if true {
+    ;     return
+    ; }
 
     if not address_match {
-        MsgBox('failed during address extraction')
+        ; todo: fix
+        ; MsgBox('failed during address extraction')
+        LogMessage(text)
         return
     }
 
@@ -85,29 +94,77 @@ WindowEventCallback(event) {
     WinActivate(existing_explorer_id)
     Sleep(100)
 
-    RestoreMousePosition(true, () => Click(0, 0))
+    ; RestoreMousePosition(true, () => Click(1200, 75))
 
+    ; TODO: Debug alternative input methods, long presses or SendInput/SendEvent
     Send('^t')
     Sleep(100)
-    Loop 10 {
-        Send('^l^c')
-        Sleep(100)
 
-        if A_Clipboard == "This PC" {
-            break
+    ; LongPress('Tab', 100, 100)
+
+    HOME_GUID := "::{F874310E-B6B7-47DC-BC84-B9E6B38F5903}"
+
+    output := ExecPS3(Format("
+    (
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+
+public class NativeMethods {
+    [DllImport("user32.dll")]
+    public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+}
+"@
+
+$WM_COMMAND = 0x0111
+$NEW_TAB_COMMAND = 0xA21B
+
+# This does not show up in the .Windows iterator. Fail
+# [NativeMethods]::SendMessage({}, $WM_COMMAND, [IntPtr]::Zero + $NEW_TAB_COMMAND, [IntPtr]::Zero)
+
+$shellApp = New-Object -ComObject Shell.Application
+$windows = $shellApp.Windows()
+
+foreach ($window in $windows) {
+    if ($window.Name -eq "File Explorer" -or $window.FullName -like "*explorer.exe") {
+        $path = $window.Document.Folder.Self.Path
+
+        Write-Output $path
+
+        if ($path -like '{}') {
+            $window.Navigate("{}")
         }
     }
+}
+    )", existing_explorer_id, HOME_GUID, address))
 
-    A_Clipboard := address
-    Sleep(0.4)
+    ; MsgBox(output)
 
-    ; SendInput('^l{Raw}' address)
-    Send('^a^v')
-    Send('{Enter}')
+    ; Loop 20 {
+    ;     Send('^l^c')
+    ;     Sleep(50)
 
-    ; Dumb delay so explorer doesn't paste the wrong thing???
-    Sleep(1)
-    A_Clipboard := old_clipboard
+    ;     if A_Clipboard == "This PC" or A_Clipboard == "Home" {
+    ;         break
+    ;     }
+    ; }
+
+    ; A_Clipboard := ""
+    ; A_Clipboard := address
+    ; ClipWait(1)
+    ; Sleep(50)
+
+    ; Send('^a^v')
+    ; Send('{Enter}')
+
+    ; Sleep(1)
+
+    ; Send('^l')
+    ; Send('{Enter}')
+
+    ; ; Dumb delay so explorer doesn't paste the wrong thing???
+    ; Sleep(1)
+    ; A_Clipboard := old_clipboard
 
     ; DebugView(FormatObjectProps({
     ;     exe: event.exe,
@@ -117,17 +174,6 @@ WindowEventCallback(event) {
     ;     address: address,
     ;     windows: StrJoin(explorer_windows, ',')
     ; }))
-}
-
-F23:: {
-    Loop 10 {
-        Send('^l{esc}^l^c')
-        Sleep(100)
-
-        if A_Clipboard == "This PC" {
-            break
-        }
-    }
 }
 
 ; Remap Win+E to open explorer.exe
@@ -157,16 +203,16 @@ F23:: {
 ; Now, Win+B will toggle bluetooth connectivity and open the device list.
 #b:: {
     Send("#a")
-    Sleep(250)
 
     ; Can't pick it up...?
     ; exists := WinWait("ahk_class Windows.UI.Core.CoreWindow", , 2)
 
     ; Fuck it, hardcode coords
-    RestoreMousePosition(true, () => (
-        Click(1650, 565)
-        Click(1710, 565)
-    ))
+    ; Sleep(250)
+    ; RestoreMousePosition(true, () => (
+    ;     Click(1650, 565)
+    ;     Click(1710, 565)
+    ; ))
 }
 
 ; It's only funny a couple times

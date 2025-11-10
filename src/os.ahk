@@ -26,3 +26,40 @@ ExecPS(command) {
 
     return Trim(A_Clipboard, ' `t`n`r')
 }
+
+; Run a command in a hidden PowerShell window, and returns its output (but better)
+; It still writes to the clipboard
+ExecPS2(command) {
+    tempFile := A_Temp "\ahk_temp_ps_script.ps1"
+    try {
+        FileDelete(tempFile)
+    }
+
+    FileAppend(command, tempFile)
+
+    A_Clipboard := ""
+
+    shell := ComObject("WScript.Shell")
+    shell.Run("powershell -Command `"powershell -ExecutionPolicy Bypass -File \`"$env:TMP/ahk_temp_ps_script.ps1\`" | Set-Clipboard`"", false, true)
+
+    return Trim(A_Clipboard, ' `t`n`r')
+}
+
+ExecPS3(command) {
+    tempFile := A_Temp "\ahk_temp_ps_script.ps1"
+    try {
+        FileDelete(tempFile)
+    }
+
+    FileAppend(command, tempFile, 'UTF-8') ; with BOM
+
+    A_Clipboard := ""
+
+    shell := ComObject("WScript.Shell")
+    shell.Run("powershell -Command `"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; powershell -ExecutionPolicy Bypass -File \`"$env:TMP/ahk_temp_ps_script.ps1\`" | Out-File -FilePath \`"$env:TMP/ahk_temp_ps_output.txt\`"", false, true)
+
+    output := FileRead(A_Temp "\ahk_temp_ps_output.txt")
+    FileDelete(A_Temp "\ahk_temp_ps_output.txt")
+
+    return output
+}

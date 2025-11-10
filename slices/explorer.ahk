@@ -1,27 +1,87 @@
 #Include ../src/all.ahk
 
-#HotIf WinActive("ahk_exe explorer.exe ahk_class CabinetWClass")
+GroupAddTree({
+    ExplorerWindow: {
+        Explorer: 'ahk_exe explorer.exe ahk_class CabinetWClass',
+        PickerDialog: 'ahk_class #32770',
+        Picker: 'ahk_exe PickerHost.exe'
+    }
+})
+
+; Iterate over elements in folder with scroll wheel
+#HotIf WinActive("ahk_group ExplorerWindow") and MouseShiftHeld()
+
+WheelUp::Left
+WheelDown::Right
+
+WheelLeft:: {
+    Send('{ScrollLock up}{XButton1}')
+    Sleep(150)
+}
+WheelRight:: {
+    Send('{ScrollLock up}{XButton2}')
+    Sleep(150)
+}
+
+#HotIf
+
+#HotIf WinActive("ahk_group ExplorerWindow") or WinActive("ahk_group PickerDialog")
+
+Pause:: {
+    if MouseShiftHeld() {
+        Send('{Up}')
+    } else {
+        Send('{Pause up}')
+        Sleep(15)
+        Send('{Alt down}{Up down}')
+        Sleep(15)
+        Send('{Up up}{Alt up}')
+    }
+}
+
+Insert:: {
+    if MouseShiftHeld() {
+        Send('{Down}')
+    } else {
+        Send('{Pause up}')
+        Sleep(15)
+        Send('{Alt down}{Left down}')
+        Sleep(15)
+        Send('{Left up}{Alt up}')
+    }
+}
+
 
 ; I really don't use the search bar that much
 F3::return
 
 ; Overwrite Ctrl+L so it also clears the previous executable
 ; so instead it's always the current folder
-$^l:: {
-    Send("^l")
-    Sleep(50)
-    Send("{BS}")
-    Sleep(50)
-    Send("{Esc}")
-}
+; $^l:: {
+;     Send("^l")
+;     Sleep(50)
+;     Send("{BS}")
+;     Sleep(50)
+;     Send("{Esc}")
+; }
 
 ; Tab switching with side buttons
-F17::Send("^{Tab}")
+; Explorer is still bad at picking up key combinations
+F17:: {
+    Send('{Ctrl down}')
+    Sleep(10)
+    Send('{Tab}')
+    Sleep(10)
+    Send('{Ctrl up}')
+}
 
-F16::Send("^+{Tab}")
-
-ScrollLock & WheelLeft::Send('{ScrollLock up}{XButton1}')
-ScrollLock & WheelRight::Send('{ScrollLock up}{XButton2}')
+F16:: {
+    Send('{Ctrl down}{Shift down}')
+    Sleep(10)
+    Send('{Tab}')
+    Sleep(10)
+    Send('{Shift up}{Ctrl up}')
+}
 
 ; The top of the tabs is not glued to the top of the screen, which is LITERALLY THE WORST
 ; So if a click is done very close to the top of the screen, redirect it to be not so close
@@ -84,10 +144,20 @@ UnselectFilesExplorer() {
 
 ; Set large previews
 F19:: {
-    UnselectFilesExplorer()
-    Send('{AppsKey}')
-    Sleep(10)
-    Send('{Down}{Enter}{Enter}')
+    static LoopyBanoopy := 1
+
+    if A_PriorKey == 'F19' and LoopyBanoopy < 6 {
+        LoopyBanoopy += 1
+    } else {
+        LoopyBanoopy := 1
+    }
+
+    Send('^+' LoopyBanoopy)
+
+    ; UnselectFilesExplorer()
+    ; Send('{AppsKey}')
+    ; Sleep(10)
+    ; Send('{Down}{Enter}{Enter}')
 }
 
 ; Set sort order name, reverse if current
@@ -98,35 +168,44 @@ F20:: {
     Send("{Down}{Down}{Right}{Enter}")
 }
 
-; Go up one folder
-Pause::Send('!{Up}')
-; Pause::RestoreMousePosition(true, () => Click(145, 135))
+F24:: {
+    Click('Right')
+    Sleep(100)
+    Send('m')
+    Sleep(200)
+    Send('len')
+    Sleep(200)
+    Send('{Space}')
+    Sleep(200)
+    Send('{Enter}')
+}
 
-; Go back one item in history
-Insert::Send('!{Left}')
-; Insert::RestoreMousePosition(true, () => Click(25, 135))
-
-; Iterate over elements in folder with scroll wheel
-ScrollLock & WheelUp::Left
-ScrollLock & WheelDown::Right
-ScrollLock & Pause::Up
-ScrollLock & Insert::Down
 #HotIf
 
 ; Make taskbar scrolling actually mute and unmute sound
-#HotIf MouseIsOver("ahk_class Shell_TrayWnd")
-~WheelUp::
-~WheelDown:: {
-    Loop 2 {
-        volume := SoundGetVolume()
+; #HotIf MouseIsOver("ahk_class Shell_TrayWnd")
+; ~WheelUp::
+; ~WheelDown:: {
+;     Loop 2 {
+;         volume := SoundGetVolume()
 
-        if volume == 0 {
-            SoundSetMute(true)
-        } else {
-            SoundSetMute(false)
-        }
+;         if volume == 0 {
+;             SoundSetMute(true)
+;         } else {
+;             SoundSetMute(false)
+;         }
 
-        Sleep(30)
-    }
-}
+;         Sleep(30)
+;     }
+; }
+; #HotIf
+
+#HotIf WinActive('ahk_exe OneCommander.exe')
+
+F16::^+Tab
+F17::^Tab
+
+Pause::!Up
+Insert::!Left
+
 #HotIf

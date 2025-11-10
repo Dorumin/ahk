@@ -3,10 +3,22 @@
 ; Hold a key for a specified duration, and delay after.
 ; For delay around, just use sleep. idgaf. This is just the most common use case
 LongPress(which, duration, after := 0) {
-    Send(Format("{{}{} down{}}", which))
-    Sleep(duration)
-    Send(Format("{{}{} up{}}", which))
-    Sleep(after)
+    SendQueue(
+        Format("{{}{} down{}}", which),
+        duration,
+        Format("{{}{} up{}}", which),
+        after
+    )
+}
+
+SendQueue(commands*) {
+    for command in commands {
+        if IsNumber(command) {
+            Sleep(command)
+        } else {
+            Send(command)
+        }
+    }
 }
 
 ; Matcher like WinActive, useful in #HotIf condition
@@ -100,4 +112,9 @@ class KeyHolder {
         SetTimer(this.callback, 0)
         this.timer.Reset()
     }
+}
+
+
+MouseShiftHeld() {
+    return GetKeyState('ScrollLock', 'P')
 }

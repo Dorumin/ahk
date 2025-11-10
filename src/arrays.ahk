@@ -20,6 +20,16 @@ ArrayFindIndex(array, findfn) {
     return 0
 }
 
+; Returns true if the closure returns true for any item, false otherwise
+ArrayAny(array, findfn) {
+    return ArrayFindIndex(array,  findfn) != 0
+}
+
+; Returns true if the closure returns true for all items, false otherwise
+ArrayAll(array, findfn) {
+    return ArrayFindIndex(array, (params*) => not CallSafe(findfn, params*)) == 0
+}
+
 ; Attempts to find an item in an array by index. If missing, throws an error, because ahk has no null values
 ArrayFind(array, findfn) {
     index := ArrayFindIndex(array, findfn)
@@ -66,4 +76,34 @@ ArrayMap(array, mapper) {
     ArrayForEach(array, (item, index) => mapped.Push(CallSafe(mapper, item, index)))
 
     return mapped
+}
+
+; Returns a shallow copy of a portion of the array from start to end-1
+ArraySlice(array, start := 1, end := "") {
+    length := array.Length
+
+    ; Normalize start
+    if (start < 0)
+        start := length + start + 1
+    if (start < 1)
+        start := 1
+
+    ; Normalize end
+    if (end = "") {
+        end := length
+    } else if (end < 0) {
+        end := length + end + 1
+    }
+
+    if (end > length)
+        end := length
+    if (end < start)
+        return []
+
+    sliced := []
+    loop end - start + 1 {
+        sliced.Push(array[start + A_Index - 1])
+    }
+
+    return sliced
 }

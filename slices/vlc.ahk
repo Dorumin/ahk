@@ -64,7 +64,8 @@ F17:: {
         height += 18 + 34 + 26 + 36
     }
 
-    WinMove(left, 0, width, height, 'A')
+    ; WinRestore(active_id)
+    WinMove(left, 0, width, height, active_id)
 }
 
 SLIDER_PROGRESS_SEEN := [0xFF287DCC]
@@ -98,6 +99,22 @@ FindProgressPixel(&progress_x, &progress_y) {
 }
 
 ; MButton dragging to move video progress bar
+Release() {
+    global start_x, start_y, holding_slider
+
+    if GetKeyState('F18', 'P') or GetKeyState('Insert', 'P') or GetKeyState('MButton', 'P') {
+        return
+    }
+
+    Send('{LButton up}')
+
+    MouseMove(start_x, start_y)
+
+    SetTimer(Release, 0)
+
+    holding_slider := false
+}
+
 F18::
 Insert::
 MButton:: {
@@ -121,28 +138,21 @@ MButton:: {
     MouseMove(progress_x, progress_y)
     ; MouseMove(x + 66, y + height - 60)
     Send('{LButton down}')
-}
 
-F18 up::
-Insert up::
-MButton up:: {
-    global holding_slider, start_x, start_y
-    Send('{LButton up}')
-
-    MouseMove(start_x, start_y)
-
-    holding_slider := false
+    SetTimer(Release, 50)
 }
 
 Pause::
 Escape::
 BackSpace::WinClose('A')
 
-WheelUp::Left
-WheelDown::Right
-ScrollLock & WheelUp::^Left
-ScrollLock & WheelLeft::^Left
-ScrollLock & WheelDown::^Right
-ScrollLock & WheelRight::^Right
+#HotIf WinActive("ahk_exe vlc.exe") and MouseIsOver("ahk_exe vlc.exe")
+
+WheelUp::+Left
+WheelDown::+Right
+ScrollLock & WheelUp::!Left
+ScrollLock & WheelLeft::!Left
+ScrollLock & WheelDown::!Right
+ScrollLock & WheelRight::!Right
 
 #HotIf

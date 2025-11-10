@@ -31,6 +31,8 @@ but they can be a little more unwieldy and require providing a name.
     }
 
 For callbacks that take arguments, you may ignore them using a * to capture varargs.
+
+For writing functions that take functions, consider using CallSafe to ignore vararg errors.
 */
 
 ; Since in AHK, everything goes in the global scope anyways, modules are a scam and a social construct

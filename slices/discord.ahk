@@ -11,7 +11,18 @@ global CHECK_SKIP_Y := 63
 
 global lastClickedGuildHeight := -1
 
+
+; Iterate over channels with the mouse wheel
+#HotIf WinActive("ahk_exe Discord.exe") and MouseShiftHeld()
+WheelUp::!Up
+
+WheelDown::!Down
+
 #HotIf WinActive("ahk_exe Discord.exe")
+
+Pause::!Up
+Insert::!Down
+
 ; Disable Ctrl+R in Discord (refresh) (why)
 ^r::
 ; Disable Ctrl+P in Discord (open pins)
@@ -61,16 +72,11 @@ global lastClickedGuildHeight := -1
     }
 }
 
-; Iterate over channels with the mouse wheel
-Pause::!Up
-ScrollLock & WheelUp::!Up
-
-Insert::!Down
-ScrollLock & WheelDown::!Down
-
 ; Iterate over guilds with side buttons
-F16::GuildDown()
-F17::GuildUp()
+; F16::GuildDown()
+; F17::GuildUp()
+F16::^!Down
+F17::^!Up
 
 GUILD_SELECTED_COLOR := 0xfff2f3f5
 GUILD_INDICATOR_PIXELS := [
@@ -112,5 +118,25 @@ GuildUp() {
 }
 
 WheelRight::^!Right
+
+WheelLeft:: {
+    Send('{MButton}')
+    StayLoose()
+}
+
+~MButton::StayLoose()
+
+StayLoose() {
+    disc := WinActive()
+
+    loop 20 {
+        if WinActive() != disc {
+            WinActivate(disc)
+            break
+        }
+
+        Sleep(10)
+    }
+}
 
 #HotIf
