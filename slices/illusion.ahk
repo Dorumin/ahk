@@ -22,18 +22,18 @@ GetSelectedKKManager() {
     ManagerWindowID := 0
 
     MouseGetPos(&OldMouseX, &OldMouseY, &ManagerWindowID)
-	WinGetPos(&WinX, &WinY, &WinW, &WinH, "ahk_id " ManagerWindowID)
-	WinTitle := WinGetTitle("ahk_id " ManagerWindowID)
+    WinGetPos(&WinX, &WinY, &WinW, &WinH, "ahk_id " ManagerWindowID)
+    WinTitle := WinGetTitle("ahk_id " ManagerWindowID)
 
-	WhereImageX := WinX + WinW - 60
-	WhereImageY := WinY + WinH - 200
+    WhereImageX := WinX + WinW - 60
+    WhereImageY := WinY + WinH - 200
 
     RestoreMousePosition(true, () => Click(WhereImageX, WhereImageY))
 
-	; Set tab focus on a text field
-	Send("{Tab}{Enter}{Tab}{Enter}{Tab}{Enter}")
-	; Set tab focus on topmost text field
-	Send("{Home}")
+    ; Set tab focus on a text field
+    Send("{Tab}{Enter}{Tab}{Enter}{Tab}{Enter}")
+    ; Set tab focus on topmost text field
+    Send("{Home}")
     lastPosition := 1
     filename := ""
 
@@ -83,7 +83,7 @@ GetSelectedKKManager() {
         case InStr(WinTitle, "HoneySelect2"):
             return FindFirstExistingFile([
                 "D:\Games\IS\HS2\UserData\chara\reflection\" filename,
-                "D:\Games\IS\HS3\UserData\chara\reflection\" filename,
+                "D:\Games\IS\HS2R16\UserData\chara\reflection\" filename,
                 "D:\Games\IS\HS2\UserData\chara\recent\" filename,
                 "D:\Games\IS\HS2\UserData\chara\female\" filename,
                 "D:\Games\IS\HS2\UserData\chara\export\" filename,
@@ -99,13 +99,14 @@ TrackRecentSelected(file_path) {
     ; Resolve symlink path. This works on regular files too
     file_target := Trim(ExecPS3("(Get-ChildItem '" file_path "').Target"), ' `n`t`r')
     ; Get the stem past chara for the target
-    file_target_stem := RegExReplace(file_target, '.+?\\chara\\\w+\\', '')
+    file_target_stem := RegExReplace(file_target, '.+?\\chara\\\w+\\|.*?-(male|female)\\', '')
     ; Get the static prefix up to chara for the target
-    chara_prefix := RegExReplace(file_target, '(.+?\\chara)\\.+', '$1')
+    chara_prefix := RegExReplace(RegExReplace(file_target, '(.+?\\chara)\\.+', '$1\recent\'), '-(male|female)\\.*',
+    "-recent\")
     ; Map the stem to lowercase, turn into valid component by replacing separators
     recent_stem := RegExReplace(StrLower(file_target_stem), '\\|/', '.')
     ; Reconstruct path with prefix
-    recent_path := chara_prefix '\recent\' recent_stem
+    recent_path := chara_prefix . recent_stem
 
     ; Relink target to new static location in /recent/
     ExecPS3('cmd /c mklink "' recent_path '" "' file_target '"')
@@ -118,10 +119,10 @@ DropSelectedKKManager(track) {
     game_window_ids := WinGetList("ahk_class UnityWndClass")
     ; game_window_id := WinExist("ahk_class UnityWndClass")
     file_path := GetSelectedKKManager()
-    file_list := [ file_path ]
+    file_list := [file_path]
 
     if ArrayIncludes(game_window_ids, coming_from_win_id) {
-        game_window_ids := [ coming_from_win_id ]
+        game_window_ids := [coming_from_win_id]
     }
 
     if track {
@@ -131,6 +132,9 @@ DropSelectedKKManager(track) {
     for game_window_id in game_window_ids {
         DropFiles(game_window_id, file_list)
         ; Focus game window after drop
+        ; Toggle WS_BORDER on and off because it's inconsequential and it blocks until the window is responsive
+        WinSetStyle("-0x800000", game_window_id)
+        WinSetStyle("+0x800000", game_window_id)
         WinActivate(game_window_id)
     }
 }
@@ -183,12 +187,12 @@ ScrollLock & F19:: {
 
     if file_target && file_target != "" {
         ; Target is a symlink, we can delete it
-        LogMessage(Format("Deleted symlink: {}`nPointed to: {}", file_path, file_target))
-        FileRecycle(file_target)
+        LogMessage("Deleted symlink: {}`nPointed to: {}", file_path, file_target)
+        ; FileRecycle(file_target)
     } else {
         ; Target is not a symlink, delete anyways...?
-        LogMessage(Format("Deleted file, was not a symlink: {}", file_path))
-        FileRecycle(file_path)
+        LogMessage("Deleted file, was not a symlink: {}", file_path)
+        ; FileRecycle(file_path)
     }
 }
 
@@ -232,16 +236,33 @@ F19:: {
 
 F18::Space
 
-; Breaks in charamaker, so make explicit with mod key
-ScrollLock & F17::Send('{ScrollLock up}{BackSpace}')
+ScrollLock & F18:: {
+    RestoreMousePosition(true, () => (
+        Click(1585, 35)
+        Sleep(30)
+        Click(1585 + 60 * 1, 35)
+        Sleep(30)
+        Click(1585 + 60 * 2, 35)
+        Sleep(30)
+        Click(1585 + 60 * 3, 35)
+        Sleep(30)
+        Click(1585 + 60 * 4, 35)
+        Sleep(30)
+        Click(1585 + 60 * 5, 35)
+        Sleep(30)
+    ))
+}
+
+; Breaks in maker, so make explicit with mod key
+ScrollLock & F17:: Send('{ScrollLock up}{BackSpace}')
 
 ; Stuff for adjusting zoom and roll
 zoom_in_holder := KeyHolder(['¿'])
 zoom_out_holder := KeyHolder(['+'])
 
-ScrollLock & WheelDown::zoom_out_holder.Pressed()
+ScrollLock & WheelDown:: zoom_out_holder.Pressed()
 
-ScrollLock & WheelUp::zoom_in_holder.Pressed()
+ScrollLock & WheelUp:: zoom_in_holder.Pressed()
 
 #HotIf
 
@@ -261,9 +282,9 @@ F17::,
 
 F18::Space
 
-ScrollLock & WheelUp::zoom_out_holder.Pressed()
+ScrollLock & WheelUp:: zoom_out_holder.Pressed()
 
-ScrollLock & WheelDown::zoom_in_holder.Pressed()
+ScrollLock & WheelDown:: zoom_in_holder.Pressed()
 
 #HotIf
 
@@ -380,23 +401,23 @@ Insert:: {
 }
 
 ; LockOn can't be rebound
-ScrollLock & Insert::Send('{ScrollLock up}{XButton2 down}')
-ScrollLock & Insert up::Send('{ScrollLock up}{XButton2 up}')
+ScrollLock & Insert:: Send('{ScrollLock up}{XButton2 down}')
+ScrollLock & Insert up:: Send('{ScrollLock up}{XButton2 up}')
 
 #HotIf
 
 #HotIf WinActive("ahk_group IllusionAny")
 
-F1::Send('{F1}')
+F1:: Send('{F1}')
 
 Pause::F12
 F23 & LButton::F5
 
 ; Reset field of view
-ScrollLock & MButton::Send("{ScrollLock up}´")
+ScrollLock & MButton:: Send("{ScrollLock up}´")
 
 ; Reset camera roll (not yaw, not pitch)
-ScrollLock & RButton::Send("{ScrollLock up}{Raw}}")
+ScrollLock & RButton:: Send("{ScrollLock up}{Raw}}")
 
 tilt_left_holder := KeyHolder(['.'], 100, 300)
 tilt_right_holder := KeyHolder(['<'], 100, 300)
@@ -404,17 +425,20 @@ tilt_right_holder := KeyHolder(['<'], 100, 300)
 tilt_fast_left_holder := KeyHolder(['shift', '.'], 100, 300)
 tilt_fast_right_holder := KeyHolder(['shift', '<'], 100, 300)
 
-WheelLeft::tilt_left_holder.Pressed()
-WheelRight::tilt_right_holder.Pressed()
+WheelLeft:: tilt_left_holder.Pressed()
+WheelRight:: tilt_right_holder.Pressed()
 
-ScrollLock & WheelLeft::tilt_fast_left_holder.Pressed()
-ScrollLock & WheelRight::tilt_fast_right_holder.Pressed()
+ScrollLock & WheelLeft:: tilt_fast_left_holder.Pressed()
+ScrollLock & WheelRight:: tilt_fast_right_holder.Pressed()
 
 #HotIf
 
 #HotIf WinActive('ahk_exe WildLifeC-Win64-Shipping.exe')
 
 ; F17::Send('h')
+
+Alt:: {
+}
 
 wl_f18_held := false
 F18:: {
@@ -454,11 +478,11 @@ for index, device in devices {
 
 F16::e
 F16 & LButton::i
-F16 & RButton::Send('r')
-F16 & Pause::Send('t')
-F16 & Insert::Send('f')
-F16 & MButton::Send('y')
-F16 & WheelRight::SendQueue('{Shift down}', 50, 'l', 50, '{Shift up}')
+F16 & RButton:: Send('r')
+F16 & Pause:: Send('t')
+F16 & Insert:: Send('f')
+F16 & MButton:: Send('y')
+F16 & WheelRight:: SendQueue('{Shift down}', 50, 'l', 50, '{Shift up}')
 
 F17::H
 F17 & LButton::a
@@ -468,18 +492,28 @@ F17 & Insert::s
 F17 & WheelLeft::q
 F17 & WheelRight::e
 
-F19 & LButton::Send('y')
+ScrollLock & WheelUp:: SendQueue(RepeatArray(['{WheelUp}', 1], 10)*)
+ScrollLock & WheelDown:: SendQueue(RepeatArray(['{WheelDown}', 1], 10)*)
 
-F24 & RButton::Send('{Tab}')
+WheelRight::WheelUp
+WheelLeft::WheelDown
+ScrollLock & WheelRight:: SendQueue(RepeatArray(['{WheelUp}', 1], 10)*)
+ScrollLock & WheelLeft:: SendQueue(RepeatArray(['{WheelDown}', 1], 10)*)
+
+F19 & LButton:: Send('y')
+
+F24 & RButton:: Send('{Tab}')
 F24 & Pause:: {
     Send('{Escape}')
     PixelWait(315, 960, [0xa6a6a6, 0x898989, 0x989898, 0x999999], -1, 3)
     Click(315, 960)
     PixelWait(750, 595, [0x3f3f3f, 0x505050], -1, 3)
-    ; Click(750, 595)
+    Click(750, 595)
     MouseMove(750, 595)
-    PixelWait(225, 655, [0x999999], -1, 3)
-    Click(225, 655)
+    ; PixelWait(225, 655, [0x999999], -1, 3)
+    PixelWait(211, 690, [0x999999], -1, 3)
+    ; Click(225, 655)
+    Click(211, 690)
     PixelWait(845, 740, [0xe3e0cf, 0xdedbc7], -1, 3)
     Click(845, 740)
 }
@@ -489,10 +523,10 @@ F24 & Pause:: {
 #HotIf WinActive("ahk_group IllusionStudio")
 
 ; LockOn can't be rebound
-Insert::Send('{XButton2 down}')
-Insert up::Send('{XButton2 up}')
+Insert:: Send('{XButton2 down}')
+Insert up:: Send('{XButton2 up}')
 
-ScrollLock & Insert::Send('{ScrollLock up}f')
+ScrollLock & Insert:: Send('{ScrollLock up}f')
 
 ; Scene effects
 F20:: {
@@ -552,14 +586,92 @@ F20:: {
     }
 }
 
+F21:: {
+    Attach(path) {
+        matches := FindAllImages(1550, 100, 1900, 800, path)
+
+        if matches.Length < 2 {
+            LogMessage("No matches for {}", path)
+            return
+        }
+
+        last := matches.Pop()
+        lastx := last[1]
+        lasty := last[2]
+
+        SendMode('Input')
+        MouseMove(lastx + 5, lasty + 5)
+        Sleep(150)
+        Click()
+        Sleep(150)
+
+        Send('{Ctrl down}')
+
+        for match in matches {
+            x := match[1]
+            y := match[2]
+
+            MouseMove(x + 5, y + 5)
+            Sleep(150)
+            Click()
+            Sleep(150)
+        }
+
+        Send('{Ctrl up}')
+
+        MouseMove(1770, 640)
+        Sleep(150)
+        Click()
+
+        Sleep(200)
+
+        ; MsgBox(Format("{}", StrJoin(ArrayMap(matches, (m) => StrJoin(m, ",")), "; ")))
+    }
+
+    Attach("*11 ./assets/find1.png")
+    Attach("*11 ./assets/find2.png")
+    Attach("*11 ./assets/find3.png")
+    Attach("*11 ./assets/find4.png")
+    Attach("*11 ./assets/find5.png")
+    Attach("*11 ./assets/find6.png")
+    Attach("*11 ./assets/find7.png")
+}
+
+FindAllImages(x1, y1, x2, y2, path, yoffset := 10) {
+    matches := []
+
+    ystart := y1
+
+    loop {
+        x := ''
+        y := ''
+
+        found := ImageSearch(&x, &y, x1, ystart, x2, y2, path)
+
+        if not found {
+            break
+        }
+
+        matches.Push([x, y])
+
+        ystart := y + yoffset
+
+        LogMessage("{} {}", x, y)
+    }
+
+    return matches
+}
+
 IsSceneBrowserOpen() {
+    ; MsgBox(Format("asd {}", PixelIs(1725, 250, [0x000000], 10)))
+
     return (
-        PixelGetColor(1725, 250, 'RGB') == '0x000000' ; Inner close button
-        && PixelGetColor(1725, 242, 'RGB') == '0xFFFFFF' ; Outer close button
+        PixelIs(1725, 250, [0x000000], 10) ; Inner close button
+        && PixelIs(1725, 242, [0xFFFFFF]) ; Outer close button
         && ( ; Folder browser; modded
-            ArrayIncludes(['0x6C6C6C', '0x424242'], PixelGetColor(800, 90, 'RGB'))
-            || PixelGetColor(100, 950, 'RGB') =='0x545454'
-         )
+            PixelIs(800, 90, [0x6C6C6C, 0x424242])
+            || PixelIs(100, 950, [0x545454])
+        )
         ; && ArrayIncludes(['0x696868', '0x6A6967', '0x6C6C6A', '0x696866'], PixelGetColor(190, 250, 'RGB')) ; Translucent; useless
         ; && PixelGetColor(1650, 285, 'RGB') == '0xD9D9D9' ; Suspicious; uses buttons on the right. Might have shifted
     )
@@ -632,19 +744,19 @@ SceneBrowserWorker() {
 }
 
 OpenSceneBrowser() {
-    color := PixelGetColor(20, 222, "RGB")
+    ; color := PixelGetColor(20, 222, "RGB")
 
     ; Inactive color
-    if color = "0x464646" or color = "0x353535" {
+    if PixelIs(20, 222, [0x424242, 0x464646, 0x353535]) {
         MouseMove(20, 222)
-        LongPress("LButton", 50, 150)
+        LongPress("LButton", 150, 150)
         Sleep(100)
     }
 
     MouseMove(150, 185)
     ; LongPress("LButton", 50, 50)
     Sleep(150)
-    LongPress("LButton", 50, 50)
+    LongPress("LButton", 100, 50)
     Sleep(100)
 
     if WinActive('ahk_group KKStudio') {
@@ -653,20 +765,32 @@ OpenSceneBrowser() {
 }
 
 SelectSceneInBrowser() {
-    if ArrayIncludes(['0xFAFAFA', '0xF9F9F9'], PixelGetColor(823, 675, 'RGB')) {
+    game_window_id := WinActive('A')
+
+    if PixelIs(778, 675, [0xFAFAFA, 0xF9F9F9, 0xfbfbfb, 0xfdfdfd], 4) and PixelIs(823, 675, [0xFAFAFA, 0xF9F9F9,
+        0xfbfbfb, 0xfdfdfd], 4) {
         MouseMove(823, 675)
-        LongPress('LButton', 50, 100)
+        LongPress('LButton', 150, 100)
     } else {
         LongPress('LButton', 50, 50)
-        PixelWait(823, 675, [0xFAFAFA, 0xF9F9F9])
+        PixelWait(823, 675, [0xFAFAFA, 0xF9F9F9, 0xfbfbfb, 0xfdfdfd], -1, 4)
 
         MouseMove(823, 675)
-        Sleep(50)
-        LongPress('LButton', 50, 100)
-        LongPress('LButton', 100, 50)
+        Sleep(150)
+        LongPress('LButton', 150, 100)
+        ; LongPress('LButton', 100, 50)
     }
 
+    if !WinActive('ahk_group KKStudio') {
+        return
+    }
+
+    start := Timer()
+    start.Start()
+
     screen_col := CGdip.Bitmap.FromScreen(SCENE_SCROLLBAR_X '|1|1|' A_ScreenHeight)
+
+    LogMessage('GDip screenshot took {}ms', start.Elapsed())
 
     ; Loop 1000 {
     ;     LogMessage("" screen_col.GetPixel(0, A_Index))
@@ -690,8 +814,8 @@ SelectSceneInBrowser() {
 
         if pixel_color == SCENE_SCROLLBAR_COLOR {
             green_tile_visible := GetGreenTilePos()
-            LogMessage('selected-at: ' current_scrollbar_y)
-            LogMessage('green-tile-visible: ' green_tile_visible)
+            LogMessage('selected-at: {}', current_scrollbar_y)
+            LogMessage('green-tile-visible: {}', green_tile_visible)
 
             if green_tile_visible and WinActive('ahk_group KKStudio') {
                 last_scrollbar_y.Set(current_scrollbar_y)
@@ -702,6 +826,20 @@ SelectSceneInBrowser() {
         current_scrollbar_y += SCENE_SCROLLBAR_STEP
 
         if current_scrollbar_y > SCENE_SCROLLBAR_END_Y {
+            break
+        }
+    }
+
+    loop 40 {
+        Sleep(50)
+
+        active_id := WinActive('A')
+
+        if active_id && active_id != game_window_id && !WinActive('ahk_class XamlExplorerHostIslandWindow') {
+            WinSetStyle("-0x800000", game_window_id)
+            WinSetStyle("+0x800000", game_window_id)
+            WinActivate(game_window_id)
+
             break
         }
     }
@@ -786,7 +924,7 @@ GREEN_TILE_SEARCH_COLOR := 0xff00d900
 GetGreenTilePos() {
     tiles_column := CGdip.Bitmap.FromScreen(SCREEN_PAGES_X '|1|1|' A_ScreenHeight)
 
-    Loop SCREEN_PAGES_END_Y - SCREEN_PAGES_START_Y {
+    loop SCREEN_PAGES_END_Y - SCREEN_PAGES_START_Y {
         i := A_Index
         y := SCREEN_PAGES_START_Y + i
         pixel_color := tiles_column.GetPixel(0, y)
@@ -804,7 +942,7 @@ F22 & LButton:: {
     MouseMove(435, 618)
     LongPress('LButton', 150, 50)
 
-    Loop 60 {
+    loop 60 {
         Send('{WheelUp}')
     }
 
@@ -825,7 +963,7 @@ F22 & RButton:: {
 F23 & RButton::^i
 F23 & MButton::!v
 
-F2::SendQueue('{Shift down}', 25, 'r', 25, '{Shift up}', 25, RepeatString('{BS}', 30))
+F2:: SendQueue('{Shift down}', 25, 'r', 25, '{Shift up}', 25, RepeatString('{BS}', 30))
 
 ScrollLock & F24:: {
     Send('{ScrollLock up}{g down}')

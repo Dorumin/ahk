@@ -11,10 +11,22 @@ LongPress(which, duration, after := 0) {
     )
 }
 
+LongClick(x, y, duration, before := 0, after := 0) {
+    MouseMove(x, y)
+
+    Sleep(before)
+
+    LongPress('LButton', duration, after)
+}
+
 SendQueue(commands*) {
     for command in commands {
+        ty := Type(command)
+
         if IsNumber(command) {
             Sleep(command)
+        } else if ty == 'Func' or ty == 'Closure' {
+            command()
         } else {
             Send(command)
         }

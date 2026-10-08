@@ -23,6 +23,7 @@ KeyHistory(500)
 #Include slices/browser.ahk
 #Include slices/bstack.ahk
 #Include slices/conhost.ahk
+#Include slices/cookies.ahk
 #Include slices/discord.ahk
 #Include slices/dst.ahk
 #Include slices/explorer.ahk
@@ -30,9 +31,12 @@ KeyHistory(500)
 #Include slices/imageglass.ahk
 #Include slices/notepadplusplus.ahk
 #Include slices/paintdotnet.ahk
+#Include slices/pal.ahk
 #Include slices/spore.ahk
+#Include slices/starbound.ahk
 #Include slices/sv.ahk
 #Include slices/tabbing.ahk
+#Include slices/terminal.ahk
 #Include slices/vlc.ahk
 #Include slices/vsc.ahk
 #Include slices/windowing.ahk

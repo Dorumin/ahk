@@ -52,15 +52,21 @@ OnWheelDown(*) {
 ; F13::OnTabKeyDown()
 ; F13 up::OnTabKeyUp()
 
-devices := AHI.GetDeviceList()
-
-for index, device in devices {
-    if not device.IsMouse {
-        ; Do not intercept it cause it otherwise isn't picked up by AHK
-        ; and therefore doesn't show up in A_PriorKey
+ListenInterceptionDevices(
+    (device) => not device.IsMouse,
+    (device) => (
         AHI.SubscribeKeyboard(device.id, false, OnKeyboardStateChange)
-    }
-}
+    )
+)
+; devices := AHI.GetDeviceList()
+
+; for index, device in devices {
+;     if not device.IsMouse {
+;         ; Do not intercept it cause it otherwise isn't picked up by AHK
+;         ; and therefore doesn't show up in A_PriorKey
+;         AHI.SubscribeKeyboard(device.id, false, OnKeyboardStateChange)
+;     }
+; }
 
 TabFocused() {
     return WinActive('ahk_class XamlExplorerHostIslandWindow')

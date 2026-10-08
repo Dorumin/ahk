@@ -64,8 +64,10 @@ ScrollLock & WheelRight::^y
 ; Merge all layers and save
 ; Currently just saves one layer lol I'm lazy
 F18:: {
-    Send('^m^s')
-    Sleep(550)
+    Send('^m')
+    Sleep(150)
+    Send('^s')
+    Sleep(850)
     Send('^z')
 }
 

@@ -2,7 +2,20 @@
 
 #HotIf WinActive("ahk_exe blender.exe")
 
-*F16::Send('{Shift down}{MButton down}')
-*F16 up::Send('{MButton up}{Shift up}')
+ReleaseLoop() {
+    if GetKeyState('F16', 'P') {
+        return
+    }
+
+    SendQueue('{MButton up}')
+
+    SetTimer(ReleaseLoop, 0)
+}
+
+*F16:: {
+    Send('{Shift down}{MButton down}{Shift up}')
+
+    SetTimer(ReleaseLoop, 50)
+}
 
 #HotIf

@@ -1,4 +1,4 @@
-#Include ..\lib\jsongo.v2.ahk
+#Include ../src/all.ahk
 
 #HotIf WinActive("ahk_exe SumatraPDF.exe")
 
@@ -12,14 +12,6 @@ Down:: Click(1200, 275)
 #HotIf WinActive("ahk_exe VampireSurvivors.exe") or WinActive("ahk_exe flashplayer_32_sa.exe")
 
 F24:: Click()
-
-#HotIf
-
-#HotIf WinActive('ahk_exe Palworld-Win64-Shipping.exe')
-
-*WheelLeft::SendQueue('{WheelUp}', 30, '{WheelDown}', 100)
-*F16::SendQueue('{WheelDown}', 100)
-*F17::SendQueue('{WheelUp}', 100)
 
 #HotIf
 
@@ -38,20 +30,53 @@ F24:: Click()
 a::z
 s::x
 d::c
-
-#HotIf
-
-tick_test_count := 0
-TickTest() {
-    global tick_test_count
-
-    LogMessage(WinGetClass(WinActive('A')))
-
-    tick_test_count += 1
-
-    if Mod(tick_test_count, 50) == 0 {
-        SetTimer(TickTest, 0)
+q:: {
+    while GetKeyState('q', 'P') {
+        LongPress('z', 30, 30)
     }
 }
 
-F24::SetTimer(TickTest, 100)
+f1::f1
+
+F2:: {
+    loop {
+        LongPress('Left', 100)
+        Sleep(1000)
+        LongPress('Right', 100)
+        Sleep(15000)
+    }
+}
+
+#HotIf
+
+; ListenInterceptionDevices(
+;     (device) => device.IsMouse,
+;     (device) => (
+;         ; AHI.SubscribeMouseMove(device.id, false, MouseEvent)
+;     )
+; )
+
+curx := 0
+cury := 0
+MouseGetPos(&curx, &cury)
+
+MouseEvent(x, y) {
+    global curx, cury
+
+    curx += x
+    cury += y
+
+    if true {
+        return
+    }
+
+    LogMessage("x: {} y: {}", curx, cury)
+}
+
+F24:: {
+    hWnd := WinActive("A") ; Get active window
+    Sleep(2000)
+    DllCall("FlashWindow", "UInt", hWnd, "Int", True)
+}
+
+; F23:: LongPress('LButton', 10, 10)

@@ -9,7 +9,9 @@ F14 & LButton::
 !F5:: {
     ; Set slow title match mode for matching controls text. It's OK because we're gonna reload the script anyways
     SetTitleMatchMode('Slow')
-    error_windows := WinGetList('ahk_exe AutoHotkey64.exe', 'The script was not reloaded; the old version will remain in effect.')
+    ; All warnings and errors seem to have a reload button
+    ; But only errors have a "The script was not reloaded; the old version will remain in effect." message
+    error_windows := WinGetList('ahk_exe AutoHotkey64.exe', '&Reload')
 
     for window_id in error_windows {
         WinClose(window_id)
@@ -45,6 +47,8 @@ WindowEventCallback(event) {
 
     class := WinGetClass(event.id)
 
+    ; LogMessage("window event {}, {}", event.type, class)
+
     if class != 'CabinetWClass' {
         return
     }
@@ -64,28 +68,19 @@ WindowEventCallback(event) {
 
     existing_explorer_id := ArrayFilter(explorer_windows, (id) => id != event.id)[1]
     text := WinGetText(event.id)
-    RegExMatch(text, 'm)^(?<address>.+)$', &address_match)
 
-    ; LogMessage('new-explorer-window: ' address_match.address)
+    ; Just Windows paths (DriveLetter ":\" ...)
+    ; Also avoids new windows problem where the title starts with "Non Client Input Sink Window"
+    RegExMatch(text, 'm)^(?<address>[A-Z]:.+)$', &address_match)
 
-    ; if true {
-    ;     return
-    ; }
-
-    if not address_match {
-        ; todo: fix
-        ; MsgBox('failed during address extraction')
-        LogMessage(text)
+    if address_match == '' {
+        LogMessage('new-explorer-window: did not match, full: ' text)
         return
+    } else {
+        LogMessage('new-explorer-window: ' address_match.address)
     }
 
     address := address_match.address
-
-    ; LogMessage('new-explorer-window: ' address)
-
-    if address == 'Control Panel' {
-        return
-    }
 
     old_clipboard := A_Clipboard
     A_Clipboard := address
@@ -94,18 +89,14 @@ WindowEventCallback(event) {
     WinActivate(existing_explorer_id)
     Sleep(100)
 
-    ; RestoreMousePosition(true, () => Click(1200, 75))
-
-    ; TODO: Debug alternative input methods, long presses or SendInput/SendEvent
-    Send('^t')
-    Sleep(100)
-
-    ; LongPress('Tab', 100, 100)
-
     HOME_GUID := "::{F874310E-B6B7-47DC-BC84-B9E6B38F5903}"
 
-    output := ExecPS3(Format("
-    (
+    loop {
+        ; TODO: Debug alternative input methods, long presses or SendInput/SendEvent
+        SendQueue('{Ctrl down}', 50, '{t down}', 50, '{t up}', 50, '{Ctrl up}', 250)
+
+        output := ExecPS3(Format("
+        (
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
@@ -136,44 +127,17 @@ foreach ($window in $windows) {
         }
     }
 }
-    )", existing_explorer_id, HOME_GUID, address))
+        )",
+            existing_explorer_id, HOME_GUID, address))
 
-    ; MsgBox(output)
+        has_home := ArrayAny(SplitLines(output), (line) => line == HOME_GUID)
 
-    ; Loop 20 {
-    ;     Send('^l^c')
-    ;     Sleep(50)
+        LogMessage("new-explorer-window has home: " has_home)
 
-    ;     if A_Clipboard == "This PC" or A_Clipboard == "Home" {
-    ;         break
-    ;     }
-    ; }
-
-    ; A_Clipboard := ""
-    ; A_Clipboard := address
-    ; ClipWait(1)
-    ; Sleep(50)
-
-    ; Send('^a^v')
-    ; Send('{Enter}')
-
-    ; Sleep(1)
-
-    ; Send('^l')
-    ; Send('{Enter}')
-
-    ; ; Dumb delay so explorer doesn't paste the wrong thing???
-    ; Sleep(1)
-    ; A_Clipboard := old_clipboard
-
-    ; DebugView(FormatObjectProps({
-    ;     exe: event.exe,
-    ;     id: event.id,
-    ;     now: A_TickCount,
-    ;     class: class,
-    ;     address: address,
-    ;     windows: StrJoin(explorer_windows, ',')
-    ; }))
+        if has_home {
+            break
+        }
+    }
 }
 
 ; Remap Win+E to open explorer.exe
@@ -277,3 +241,65 @@ F14 & Insert:: {
         Send('{LButton up}')
     ))
 }
+
+YoutubeDownload() {
+    Send('^{BS}')
+    Sleep(10)
+
+    copied := Trim(A_Clipboard)
+
+    position := RegExMatch(copied, "www\.youtube\.com\/watch\?v=.{11}|youtu\.be\/.{11}|youtube.com\/shorts\/.{11}")
+
+    if position == 0 {
+        MsgBox('youtubedl did not pick up a copied youtube url. Bad invocation?')
+        ; return
+    }
+
+    WinActivate('ahk_exe opera.exe')
+
+    Click(1790, 75) ; Open extensions dropdown
+
+    x := ''
+    y := ''
+
+    loop 20 {
+        ImageSearch(&x, &y, 1400, 100, 1900, 900, "*11 ./assets/getcookiestxt.png")
+        Sleep(50)
+
+        if x != '' && y != '' {
+            break
+        }
+    }
+
+    if x == '' || y == '' {
+        MsgBox('Failed to find cookies.txt extension')
+        return
+    }
+
+    Click(x, y) ; Open cookies export
+
+    Sleep(800)
+
+    Click(1500, 275) ; Export all cookies (to not have to open yt)
+
+    from_cookies := A_Desktop "/../Downloads/cookies.txt"
+    to_cookies := A_Desktop "/../Code/.tests/files/cookies.txt"
+
+    while !FileExist(from_cookies) {
+        Sleep(50)
+    }
+
+    ; Delay a little bit to hide random errors in the browser (virus scan failed, download interrupted, etc)
+    ; Alternatively could copy and then remove it later
+    Sleep(1000)
+
+    ; Update cookies.txt file, overwriting it
+    FileMove(from_cookies, to_cookies, true)
+
+    ; (bp) doesn't work here for some reason
+    result := ExecPS3(
+        'yt-dlp.exe --js-runtimes node -o "$env:USERPROFILE/Downloads/%(title)s [%(id)s].%(ext)s" --cookies "' to_cookies '" "' copied '"; sleep 5',
+        true, true)
+}
+
+:X*B0:youtubedl:: YoutubeDownload()

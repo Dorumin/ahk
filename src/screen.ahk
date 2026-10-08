@@ -1,6 +1,24 @@
 #Include general.ahk
 #Include arrays.ahk
 
+PixelIs(x, y, colors, fallibility := 0) {
+    if ArrayAny(colors, (color) => Type(color) == 'String') {
+        throw Error('PixelIs() called with array of strings')
+    }
+
+    pixel_color := Number(PixelGetColor(x, y, 'RGB Alt'))
+
+    ColorMatches(color) {
+        return ColorNear(color, pixel_color, fallibility)
+    }
+
+    if ArrayAny(colors, ColorMatches) {
+        return true
+    }
+
+    return false
+}
+
 PixelWait(x, y, colors, timeout := -1, fallibility := 0) {
     start := Timer()
     start.Start()
@@ -37,5 +55,11 @@ ColorNear(color1, color2, fallibility) {
 }
 
 ColorToHex(color) {
-    return Format('#{:06x}', color - 0xff000000)
+    c := color
+
+    if color >= 0xff000000 {
+        c := c - 0xff000000
+    }
+
+    return Format('#{:06x}', c)
 }

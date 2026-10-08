@@ -1,7 +1,7 @@
 LogsEnabled := true
 
 ; Send a message to log.txt for debugging
-LogMessage(text) {
+LogMessage(text, args*) {
     global LogsEnabled
 
     if not LogsEnabled {
@@ -10,7 +10,9 @@ LogMessage(text) {
 
     date_string := Format("{}-{}-{} {}:{}:{}.{}", A_Year, A_Mon, A_MDay, A_Hour, A_Min, A_Sec, A_MSec)
 
-    indented_text := StrReplace(text, '`n', '`n' RepeatString(' ', StrLen(date_string) + 1))
+    replaced_text := Format(text, args*)
+
+    indented_text := StrReplace(replaced_text, '`n', '`n' RepeatString(' ', StrLen(date_string) + 1))
 
     try {
         FileAppend(date_string " " indented_text "`n", A_ScriptDir "\log.log")

@@ -25,8 +25,10 @@ WheelRight:: {
 
 #HotIf WinActive("ahk_group AnyBrowser") and not MouseShiftHeld()
 
+; F19::LButton
+; F21::RButton
+; F20::
 WheelLeft:: {
-    LogMessage('h: ' MouseShiftHeld())
     Send('{MButton}')
     Sleep(250)
 }
@@ -36,7 +38,7 @@ WheelLeft:: {
 #HotIf WinActive("Violentmonkey ahk_group AnyBrowser")
 
 Escape:: {
-
+    Send('{Left}{Right}')
 }
 
 #HotIf
@@ -61,22 +63,22 @@ Escape:: {
 
 ; Remap some alt/ctrl + arrow key shortcuts to tab rotating, and side mouse
 F17::
-Numpad3::
 ^+Up:: ; ctrl+shift up
 !Right:: {
-	Send("^{Tab}")
+    Send("^{Tab}")
 }
 
 F16::
-Numpad2::
 ^+Down:: ; ctrl+shift down
 !Left:: {
-	Send("^+{Tab}")
+    Send("^+{Tab}")
 }
 
 ; Remap buttons below the scroll wheel to zoom
 Pause::^+
 Insert::^-
+
+^+x:: return
 
 F20:: {
     url := RestoreClipboard((*) => (
@@ -92,7 +94,6 @@ F20:: {
         ; Send('^c')
         ; Sleep(200)
         ; Send('^c')
-
         Send('^K')
         ClipWait(1)
     ))
@@ -165,7 +166,7 @@ F19:: {
 
     ; Focus back on Opera and wait for the tweet media viewer to load (top-left close x to appear)
     WinActivate(browser_window_id)
-    PixelWait(88, 125, [ 0xFFFFFF ], 3)
+    PixelWait(88, 125, [0xFFFFFF], 3)
 
     file_paths := []
 

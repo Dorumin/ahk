@@ -1,28 +1,13 @@
 #Include ../src/all.ahk
 
-global HotCaneSwitching := false
-global HadCaneEquipped := false
-global SHOW_HEX := false
-
-global EQUIPPED_CANE_DEFAULT := "0xC2CA5C"
-global EQUIPPED_CANE_ANCIENT := "0xC38A2B"
-global EQUIPPED_CANE_CORRUPTED := "0x2F2A3F"
-global UNEQUIPPED_CANE_DEFAULT := "0xCBCD5E"
-global UNEQUIPPED_CANE_ANCIENT := "0xCD922E"
-global UNEQUIPPED_CANE_CORRUPTED := "0x272336"
-
-global EQUIPPEDS := [
-    EQUIPPED_CANE_DEFAULT,
-    EQUIPPED_CANE_ANCIENT,
-    EQUIPPED_CANE_CORRUPTED,
-]
-global UNEQUIPPEDS := [
-    UNEQUIPPED_CANE_DEFAULT,
-    UNEQUIPPED_CANE_ANCIENT,
-    UNEQUIPPED_CANE_CORRUPTED,
-]
-
 #HotIf WinActive("ahk_exe dontstarve_steam_x64.exe")
+
+; Yes, they're backwards
+WheelLeft::SendQueue('e', 100)
+WheelRight::SendQueue('q', 100)
+
+Pause::WheelUp
+Insert::WheelDown
 
 ; Quick sell
 F22:: RestoreMousePosition(true, () => (
@@ -41,5 +26,10 @@ F22:: RestoreMousePosition(true, () => (
     Click(790, 615)
     Sleep(100)
 ))
+
+F20::W
+F19::A
+F23::S
+F21::D
 
 #HotIf

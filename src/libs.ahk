@@ -9,3 +9,6 @@ global AHI := AutoHotInterception()
 #Include ../lib/GDip/GDip.ahk
 
 CGdip.Startup()
+
+; jsongo (I forgot why I had this)
+#Include ../lib/jsongo.v2.ahk

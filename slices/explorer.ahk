@@ -200,6 +200,14 @@ F24:: {
 ; }
 ; #HotIf
 
+#HotIf WinActive('ahk_class ConsoleWindowClass')
+
+; Pause::SendQueue('{Ctrl down}', 50, '{+ down}', 50, '{+ up}', 50, '{Ctrl up}')
+Pause::^WheelUp
+Insert::^WheelDown
+
+#HotIf
+
 #HotIf WinActive('ahk_exe OneCommander.exe')
 
 F16::^+Tab
@@ -209,3 +217,4 @@ Pause::!Up
 Insert::!Left
 
 #HotIf
+

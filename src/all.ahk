@@ -46,6 +46,7 @@ For writing functions that take functions, consider using CallSafe to ignore var
 #Include input.ahk
 #Include os.ahk
 #Include strings.ahk
+#Include math.ahk
 #Include interception.ahk
 #Include listeners.ahk
 #Include screen.ahk

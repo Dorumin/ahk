@@ -76,7 +76,7 @@ Place(hotkey, x, y, left, right, sleepms) {
 }
 
 Navigate(left, x, y) {
-    LogMessage(Format("Navigate {} {} {}", left, x, y))
+    LogMessage("Navigate {} {} {}", left, x, y)
 
     MouseMove(100, 1000)
     LongPress('LButton', 50, 500)

@@ -129,13 +129,19 @@ WheelLeft:: {
 StayLoose() {
     disc := WinActive()
 
-    loop 20 {
+    loop 80 {
         if WinActive() != disc {
+            ; Fucking janky ass indicator that a tab was opened in another app
+            SetCursorSize(300)
             WinActivate(disc)
+            Sleep(250)
+            SetCursorSize(32)
+            ; We don't want to break because if the opened link starts a download, it grabs focus again
+            ; Actually I'll just toggle this back and forth until I figure out a solution...
             break
         }
 
-        Sleep(10)
+        Sleep(20)
     }
 }
 
